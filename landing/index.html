@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Cheapest API – Real-time Instagram Data from $0.10 per 1,000 Requests</title>
+    <meta name="description" content="Instagram Cheapest API delivers real-time, uncached Instagram data at $0.10 per 1,000 requests. Get user profiles, posts, Reels, comments, and audio data via raw JSON. 10-15× cheaper than premium scrapers. Start free on RapidAPI.">
+    <meta property="og:title" content="Instagram Cheapest API – Real-time Instagram Data from $0.10/1k">
+    <meta property="og:description" content="Real-time, uncached Instagram data. From $0.10 per 1,000 requests. Raw JSON. Free tier available.">
+    <meta property="og:type" content="website">
+    <!-- Replace the pages.dev domain below with your real domain after deploying. -->
+    <meta property="og:url" content="https://instagram-cheapest.pages.dev/">
+    <meta property="og:site_name" content="Instagram Cheapest API">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Instagram Cheapest API – from $0.10 per 1,000 requests">
+    <meta name="twitter:description" content="Real-time, uncached Instagram data via raw JSON. Free tier on RapidAPI.">
+    <link rel="canonical" href="https://instagram-cheapest.pages.dev/">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --amber: #f59e0b;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --white: #ffffff;
+            --gradient: linear-gradient(135deg, var(--purple) 0%, var(--pink) 50%, var(--amber) 100%);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background: var(--white);
+        }
+
+        code, pre, .mono {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--gray-900);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--gray-600);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--gray-900);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--gray-700);
+            border: 2px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--gray-400);
+            background: var(--gray-50);
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(180deg, var(--white) 0%, var(--gray-50) 100%);
+            padding: 6rem 1.5rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero .highlight {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Trust bar */
+        .trust-bar {
+            background: var(--gray-900);
+            color: var(--white);
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .trust-stats {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .trust-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .trust-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .trust-stat-label {
+            font-size: 0.875rem;
+            color: var(--gray-300);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Sections */
+        .section {
+            padding: 5rem 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Endpoints grid */
+        .endpoints-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .endpoint-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .endpoint-card:hover {
+            border-color: var(--purple);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .endpoint-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .endpoint-card p {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: 0.75rem;
+        }
+
+        .endpoint-card code {
+            display: block;
+            background: var(--gray-100);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--purple);
+            overflow-x: auto;
+        }
+
+        /* Code sample */
+        .code-sample {
+            background: var(--gray-900);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-tabs {
+            display: flex;
+            gap: 0;
+            background: var(--gray-800);
+            border-bottom: 1px solid var(--gray-700);
+        }
+
+        .code-tab {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--gray-400);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .code-tab.active {
+            background: var(--gray-900);
+            color: var(--white);
+        }
+
+        .code-content {
+            display: none;
+            position: relative;
+        }
+
+        .code-content.active {
+            display: block;
+        }
+
+        .code-content pre {
+            padding: 1.5rem;
+            overflow-x: auto;
+            color: var(--gray-100);
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--gray-700);
+            color: var(--white);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--gray-600);
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1.5rem;
+            background: var(--gradient);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            color: var(--gray-600);
+            font-size: 0.9375rem;
+        }
+
+        /* Pricing table */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .pricing-card {
+            background: var(--white);
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .pricing-card:hover {
+            border-color: var(--purple);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--purple);
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+        }
+
+        .pricing-tier {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--purple);
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+
+        .pricing-period {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-feature {
+            padding: 0.5rem 0;
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .pricing-feature strong {
+            color: var(--gray-900);
+        }
+
+        /* Calculator */
+        .calculator {
+            background: var(--gray-50);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .calculator h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .calculator-input {
+            margin-bottom: 1.5rem;
+        }
+
+        .calculator-input label {
+            display: block;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .calculator-input input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .calculator-result {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .calculator-result-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+        }
+
+        .calculator-result-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .calculator-note {
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-align: center;
+        }
+
+        /* Comparison */
+        .comparison {
+            background: var(--gray-50);
+            border-left: 4px solid var(--purple);
+            padding: 1.5rem;
+            border-radius: 8px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .comparison h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+        }
+
+        .comparison ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .comparison li {
+            padding: 0.5rem 0;
+            color: var(--gray-700);
+        }
+
+        .comparison li::before {
+            content: "→";
+            color: var(--purple);
+            font-weight: 700;
+            margin-right: 0.75rem;
+        }
+
+        /* FAQ */
+        .faq-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 2rem;
+        }
+
+        .faq-item h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.75rem;
+        }
+
+        .faq-item p {
+            color: var(--gray-600);
+            line-height: 1.7;
+        }
+
+        /* CTA band */
+        .cta-band {
+            background: var(--gradient);
+            color: var(--white);
+            padding: 4rem 1.5rem;
+            text-align: center;
+        }
+
+        .cta-band h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta-band p {
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--gray-900);
+            color: var(--gray-400);
+            padding: 3rem 1.5rem 2rem;
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 0.875rem;
+            line-height: 1.7;
+            max-width: 800px;
+            margin: 0 auto 1rem;
+        }
+
+        footer a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links a:not(.btn) {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .trust-stats {
+                gap: 2rem;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .endpoints-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .code-tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="#endpoints">Endpoints</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#faq">FAQ</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Real-time Instagram data from <span class="highlight">$0.10 per 1,000 requests</span></h1>
+        <p>Get uncached, raw JSON Instagram data at the lowest cost per request. User profiles, posts, Reels, comments, and audio. 10-15× cheaper than premium scrapers.</p>
+        <div class="hero-cta">
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free on RapidAPI</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-secondary">Read the Docs</a>
+        </div>
+    </section>
+
+    <!-- Trust bar -->
+    <section class="trust-bar">
+        <div class="trust-stats">
+            <div class="trust-stat">
+                <div class="trust-stat-value">9.9</div>
+                <div class="trust-stat-label">Popularity Score</div>
+            </div>
+            <div class="trust-stat">
+                <div class="trust-stat-value">99%</div>
+                <div class="trust-stat-label">Service Level</div>
+            </div>
+            <div class="trust-stat">
+                <div class="trust-stat-value">869</div>
+                <div class="trust-stat-label">Active Developers</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Endpoints -->
+    <section class="section" id="endpoints">
+        <div class="section-header">
+            <h2>Nine Production-Ready Endpoints</h2>
+            <p>All endpoints return real-time JSON. No cache, no middleman.</p>
+        </div>
+        <div class="endpoints-grid">
+            <div class="endpoint-card">
+                <h3>userinfo</h3>
+                <p>User profile details by username</p>
+                <code>/api/v1/instagram/user/{username}</code>
+            </div>
+            <div class="endpoint-card">
+                <h3>userinfo_by_user_id</h3>
+                <p>User profile by numeric ID</p>
+                <code>/api/v1/instagram/user_by_user_id?user_id={id}</code>
+            </div>
+            <div class="endpoint-card">
+                <h3>username_by_uid</h3>
+                <p>Username for a numeric UID</p>
+                <code>/api/v1/instagram/username_by_uid?uid={id}</code>
+            </div>
+            <div class="endpoint-card">
+                <h3>user_media</h3>
+                <p>User's media posts</p>
+                <code>/api/v1/instagram/user_media?user_id={id}</code>
+            </div>
+            <div class="endpoint-card">
+                <h3>user_reels</h3>
+                <p>User's Reels collection</p>
+                <code>/api/v1/instagram/user_reels?user_id={id}</code>
+            </div>
+            <div class="endpoint-card">
+                <h3>user_tag_media</h3>
+                <p>Media the user is tagged in</p>
+                <code>/api/v1/instagram/user_tag_media?user_id={id}</code>
+            </div>
+            <div class="endpoint-card">
+                <h3>media_by_code2</h3>
+                <p>Single media item by shortcode</p>
+                <code>/api/v1/instagram/media_by_code2?code={shortcode}</code>
+            </div>
+            <div class="endpoint-card">
+                <h3>media_comments</h3>
+                <p>Comments for a media shortcode</p>
+                <code>/api/v1/instagram/media_comments?code={shortcode}</code>
+            </div>
+            <div class="endpoint-card">
+                <h3>reels_audio</h3>
+                <p>Reels using a specific audio track</p>
+                <code>/api/v1/instagram/reels_audio?audio_id={id}</code>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Sample -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Start in 60 Seconds</h2>
+            <p>Copy, paste, add your RapidAPI key. That's it.</p>
+        </div>
+        <div class="code-sample">
+            <div class="code-tabs">
+                <button class="code-tab active" data-tab="curl">cURL</button>
+                <button class="code-tab" data-tab="python">Python</button>
+                <button class="code-tab" data-tab="node">Node.js</button>
+            </div>
+            <div class="code-content active" id="curl">
+                <button class="copy-btn" data-code="curl">Copy</button>
+                <pre><code>curl -X GET "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user/nike" \
+  -H "x-rapidapi-host: instagram-cheapest.p.rapidapi.com" \
+  -H "x-rapidapi-key: YOUR_RAPIDAPI_KEY"</code></pre>
+            </div>
+            <div class="code-content" id="python">
+                <button class="copy-btn" data-code="python">Copy</button>
+                <pre><code>import requests
+
+url = "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user/nike"
+headers = {
+    "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+    "x-rapidapi-key": "YOUR_RAPIDAPI_KEY"
+}
+
+response = requests.get(url, headers=headers)
+print(response.json())</code></pre>
+            </div>
+            <div class="code-content" id="node">
+                <button class="copy-btn" data-code="node">Copy</button>
+                <pre><code>const axios = require('axios');
+
+const options = {
+  method: 'GET',
+  url: 'https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user/nike',
+  headers: {
+    'x-rapidapi-host': 'instagram-cheapest.p.rapidapi.com',
+    'x-rapidapi-key': 'YOUR_RAPIDAPI_KEY'
+  }
+};
+
+axios.request(options)
+  .then(response => console.log(response.data))
+  .catch(error => console.error(error));</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Why Instagram Cheapest?</h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3>Lowest Cost per Request</h3>
+                <p>From $0.10 per 1,000 requests. Pay-as-you-go with no inflated minimums.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Real-time, Uncached</h3>
+                <p>Fresh data on every call. No stale middleman cache.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📦</div>
+                <h3>Raw JSON</h3>
+                <p>Exactly what Instagram returns. No lossy normalization, full control.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Bandwidth Control</h3>
+                <p>Use the <code class="mono">fields</code> parameter to trim payloads and only pay for data you use.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🆓</div>
+                <h3>Free to Try</h3>
+                <p>30 calls per month on the Basic plan. No commitment required.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>Broad Coverage</h3>
+                <p>Profiles, posts, Reels, tagged media, comments, and Reels audio.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="section" id="pricing">
+        <div class="section-header">
+            <h2>Transparent Pricing</h2>
+            <p>No hidden fees. Pay only for what you use.</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="pricing-tier">Basic</div>
+                <div class="pricing-price">$0</div>
+                <div class="pricing-period">per month</div>
+                <div class="pricing-feature">30 requests/month (hard cap)</div>
+                <div class="pricing-feature">1 req/sec rate limit</div>
+                <div class="pricing-feature">10 GB bandwidth included</div>
+            </div>
+            <div class="pricing-card">
+                <div class="pricing-tier">Pro</div>
+                <div class="pricing-price">$59</div>
+                <div class="pricing-period">per month</div>
+                <div class="pricing-feature"><strong>$0.13</strong> per 1,000 requests</div>
+                <div class="pricing-feature">20 req/min rate limit</div>
+                <div class="pricing-feature">10 GB bandwidth included</div>
+            </div>
+            <div class="pricing-card">
+                <div class="pricing-tier">Ultra</div>
+                <div class="pricing-price">$119</div>
+                <div class="pricing-period">per month</div>
+                <div class="pricing-feature"><strong>$0.11</strong> per 1,000 requests</div>
+                <div class="pricing-feature">40 req/min rate limit</div>
+                <div class="pricing-feature">10 GB bandwidth included</div>
+            </div>
+            <div class="pricing-card featured">
+                <div class="pricing-tier">Mega ⭐</div>
+                <div class="pricing-price">$249</div>
+                <div class="pricing-period">per month</div>
+                <div class="pricing-feature"><strong>$0.10</strong> per 1,000 requests</div>
+                <div class="pricing-feature">120 req/min rate limit</div>
+                <div class="pricing-feature">10 GB bandwidth included</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculator -->
+    <section class="section">
+        <div class="calculator">
+            <h3>Cost Calculator</h3>
+            <div class="calculator-input">
+                <label for="requests">Monthly requests</label>
+                <input type="number" id="requests" placeholder="e.g., 50000" value="50000">
+            </div>
+            <div class="calculator-result">
+                <div class="calculator-result-label">Estimated monthly cost (Mega tier)</div>
+                <div class="calculator-result-value" id="cost">$254.00</div>
+            </div>
+            <div class="calculator-note">Mega tier: $249/mo base + $0.0001 per request. Included quota may lower this. Estimate only — see RapidAPI for exact billing.</div>
+        </div>
+    </section>
+
+    <!-- Comparison -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Honest Comparison</h2>
+        </div>
+        <div class="comparison">
+            <h3>Cost per 1,000 requests</h3>
+            <ul>
+                <li><strong>Instagram Cheapest (Mega):</strong> $0.10</li>
+                <li><strong>Bright Data Instagram Scraper:</strong> ~$1.50</li>
+                <li><strong>EnsembleData Platinum:</strong> ~$1,400/mo (enterprise)</li>
+                <li><strong>Typical RapidAPI scrapers:</strong> $10–$30/mo entry, higher per-request cost at scale</li>
+            </ul>
+            <p style="margin-top: 1rem; color: var(--gray-600); font-size: 0.875rem;">
+                <strong>Result:</strong> Instagram Cheapest is 10-15× cheaper per record than premium scrapers.
+            </p>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+        <div class="section-header">
+            <h2>Frequently Asked Questions</h2>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item">
+                <h3>Is this legal?</h3>
+                <p>Yes. Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). We are not affiliated with or endorsed by Meta or Instagram.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Can I test it for free?</h3>
+                <p>Absolutely. The Basic plan includes 30 free requests per month with no commitment. Sign up on RapidAPI and start testing immediately.</p>
+            </div>
+            <div class="faq-item">
+                <h3>How do I authenticate?</h3>
+                <p>All requests require two headers: <code class="mono">x-rapidapi-host: instagram-cheapest.p.rapidapi.com</code> and <code class="mono">x-rapidapi-key: YOUR_RAPIDAPI_KEY</code>. You'll get your key when you subscribe on RapidAPI.</p>
+            </div>
+            <div class="faq-item">
+                <h3>What data can I fetch?</h3>
+                <p>User profiles (by username or ID), user media posts, Reels, tagged media, comments, and Reels audio. All endpoints return real-time, uncached JSON.</p>
+            </div>
+            <div class="faq-item">
+                <h3>How can I control bandwidth costs?</h3>
+                <p>Use the optional <code class="mono">fields</code> parameter to request only the JSON fields you need. This reduces response size and helps you stay under the 10 GB monthly bandwidth included with every tier.</p>
+            </div>
+            <div class="faq-item">
+                <h3>What if I need more than 10 GB bandwidth?</h3>
+                <p>Additional bandwidth is billed at $0.001 per MB after the included 10 GB. Use the <code class="mono">fields</code> parameter to optimize payload sizes.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Band -->
+    <section class="cta-band">
+        <h2>Start Building Today</h2>
+        <p>Real-time Instagram data from $0.10 per 1,000 requests. No commitment. Free tier included.</p>
+        <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary" style="background: var(--white); color: var(--purple);">Get Started on RapidAPI</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            <strong>Compliance:</strong> Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Not affiliated with or endorsed by Meta or Instagram.
+        </p>
+        <p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">View API on RapidAPI</a>
+        </p>
+    </footer>
+
+    <!-- JSON-LD Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Instagram Cheapest API",
+      "applicationCategory": "DeveloperApplication",
+      "offers": {
+        "@type": "AggregateOffer",
+        "lowPrice": "0",
+        "highPrice": "249",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "9.9",
+        "ratingCount": "869"
+      },
+      "description": "Real-time Instagram data API from $0.10 per 1,000 requests. Get user profiles, posts, Reels, comments, and audio data via raw JSON.",
+      "url": "https://rapidapi.com/liucccccccccccc/api/instagram-cheapest"
+    }
+    </script>
+
+    <!-- Interactive JS -->
+    <script>
+        // Code tabs
+        document.querySelectorAll('.code-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+
+                // Update tabs
+                document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Update content
+                document.querySelectorAll('.code-content').forEach(c => c.classList.remove('active'));
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        // Copy buttons
+        const codeSnippets = {
+            curl: `curl -X GET "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user/nike" \\
+  -H "x-rapidapi-host: instagram-cheapest.p.rapidapi.com" \\
+  -H "x-rapidapi-key: YOUR_RAPIDAPI_KEY"`,
+            python: `import requests
+
+url = "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user/nike"
+headers = {
+    "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+    "x-rapidapi-key": "YOUR_RAPIDAPI_KEY"
+}
+
+response = requests.get(url, headers=headers)
+print(response.json())`,
+            node: `const axios = require('axios');
+
+const options = {
+  method: 'GET',
+  url: 'https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user/nike',
+  headers: {
+    'x-rapidapi-host': 'instagram-cheapest.p.rapidapi.com',
+    'x-rapidapi-key': 'YOUR_RAPIDAPI_KEY'
+  }
+};
+
+axios.request(options)
+  .then(response => console.log(response.data))
+  .catch(error => console.error(error));`
+        };
+
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const codeType = btn.dataset.code;
+                const code = codeSnippets[codeType];
+
+                navigator.clipboard.writeText(code).then(() => {
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('copied');
+                    setTimeout(() => {
+                        btn.textContent = 'Copy';
+                        btn.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+        });
+
+        // Cost calculator
+        const requestsInput = document.getElementById('requests');
+        const costDisplay = document.getElementById('cost');
+
+        function updateCost() {
+            const requests = parseFloat(requestsInput.value) || 0;
+            const costPerRequest = 0.0001; // Mega tier overage rate
+            const baseFee = 249; // Mega tier monthly base fee
+            const total = baseFee + requests * costPerRequest;
+            costDisplay.textContent = `$${total.toFixed(2)}`;
+        }
+
+        requestsInput.addEventListener('input', updateCost);
+        updateCost();
+    </script>
+</body>
+</html>

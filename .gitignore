@@ -1,0 +1,21 @@
+# Internal marketing materials — NOT for publication
+marketing/
+
+# OMC / tooling state
+.omc/
+
+# OS / editor
+.DS_Store
+*.swp
+*~
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Secrets — never commit API keys
+.env
+*.local

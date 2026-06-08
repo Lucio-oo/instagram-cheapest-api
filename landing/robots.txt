@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://instagram-cheapest.pages.dev/sitemap.xml
