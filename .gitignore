@@ -1,6 +1,9 @@
 # Internal marketing materials — NOT for publication
 marketing/
 
+# Local-only Claude Code guidance (kept private, not published)
+CLAUDE.md
+
 # OMC / tooling state
 .omc/
 

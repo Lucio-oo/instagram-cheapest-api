@@ -1,0 +1,9 @@
+# GitHub Linguist language stats: present this repository as Python.
+# The static marketing site and the non-Python sample clients are excluded
+# from the language breakdown (they remain fully usable in the repo).
+
+landing/*                     linguist-vendored
+examples/curl.sh              linguist-documentation
+examples/go_quickstart.go     linguist-documentation
+examples/node_quickstart.js   linguist-documentation
+examples/php_quickstart.php   linguist-documentation
