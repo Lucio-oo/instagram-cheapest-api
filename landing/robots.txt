@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://instagram-cheapest.pages.dev/sitemap.xml
+Sitemap: https://instagram.kolapihub.com/sitemap.xml
