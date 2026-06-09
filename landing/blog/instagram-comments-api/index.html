@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Fetch Instagram Comments via API in Python | Instagram Cheapest</title>
+    <meta name="description" content="Learn how to scrape Instagram comments using the Instagram Cheapest API with Python and curl examples. Extract shortcodes and fetch real-time comment data.">
+    <meta name="keywords" content="instagram comments api, scrape instagram comments, get instagram post comments api, instagram api python, fetch instagram comments">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/instagram-comments-api/">
+    <meta property="og:title" content="How to Fetch Instagram Comments via API in Python">
+    <meta property="og:description" content="Learn how to scrape Instagram comments using the Instagram Cheapest API with Python and curl examples. Extract shortcodes and fetch real-time comment data.">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/instagram-comments-api/">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://instagram.kolapihub.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Fetch Instagram Comments via API in Python">
+    <meta name="twitter:description" content="Learn how to scrape Instagram comments using the Instagram Cheapest API with Python and curl examples. Extract shortcodes and fetch real-time comment data.">
+    <meta name="twitter:image" content="https://instagram.kolapihub.com/og.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "How to Fetch Instagram Comments via API in Python",
+      "description": "Learn how to scrape Instagram comments using the Instagram Cheapest API with Python and curl examples. Extract shortcodes and fetch real-time comment data.",
+      "datePublished": "2026-06-09",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/instagram-comments-api/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/">Blog</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free on RapidAPI</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>How to Fetch Instagram Comments via API in Python</h1>
+
+            <p>If you're building a sentiment-analysis tool, monitoring brand mentions, or enriching influencer profiles with engagement data, you'll frequently need to pull comments from Instagram posts and Reels. Instagram's official Graph API only serves comments from accounts you manage, so for ad-hoc lookups of public posts, you need a different route.</p>
+
+            <p>This tutorial walks through fetching Instagram comments using the <strong>Instagram Cheapest API</strong> on RapidAPI. We'll show you how to extract the post shortcode from an Instagram URL, fetch the post metadata to confirm it exists, and then retrieve all comments with Python and curl examples. The entire process uses real-time, uncached public data and costs as little as $0.10 per 1,000 requests.</p>
+
+            <h2>What you'll need</h2>
+
+            <ul>
+                <li>A <strong>RapidAPI account</strong> (free tier includes 30 requests/month to test)</li>
+                <li>Your <strong>RapidAPI key</strong> from <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">the Instagram Cheapest API page</a></li>
+                <li>Python 3.7+ with the <code>requests</code> library installed (<code>pip install requests</code>)</li>
+            </ul>
+
+            <h2>Understanding Instagram shortcodes</h2>
+
+            <p>Every Instagram post and Reel has a unique <strong>shortcode</strong> — an 11-character alphanumeric identifier visible in the post's URL. For example, if a post URL is:</p>
+
+            <pre><code>https://www.instagram.com/p/ABC1234XYZ_/</code></pre>
+
+            <p>The shortcode is <code>ABC1234XYZ_</code>. You can also find it in Reel URLs like <code>https://www.instagram.com/reel/ABC1234XYZ_/</code>. The shortcode is all you need to fetch the post and its comments.</p>
+
+            <h3>Extracting the shortcode from a URL</h3>
+
+            <p>Here's a simple Python function to extract the shortcode from an Instagram post or Reel URL:</p>
+
+            <pre><code>import re
+
+def extract_shortcode(url):
+    """Extract the Instagram shortcode from a post or Reel URL."""
+    match = re.search(r'/(p|reel)/([A-Za-z0-9_-]+)', url)
+    if match:
+        return match.group(2)
+    return None
+
+# Example usage
+post_url = "https://www.instagram.com/p/ABC1234XYZ_/"
+shortcode = extract_shortcode(post_url)
+print(f"Shortcode: {shortcode}")  # ABC1234XYZ_</code></pre>
+
+            <p>This regex captures the shortcode regardless of whether the URL is a <code>/p/</code> post or a <code>/reel/</code>. Once you have the shortcode, you're ready to fetch the comments.</p>
+
+            <h2>Fetching comments with the <code>media_comments</code> endpoint</h2>
+
+            <p>The Instagram Cheapest API provides the <code>media_comments</code> endpoint that accepts a shortcode and returns all public comments for that post or Reel in raw JSON format.</p>
+
+            <h3>Endpoint details</h3>
+
+            <ul>
+                <li><strong>Method:</strong> <code>GET</code></li>
+                <li><strong>URL:</strong> <code>https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/media_comments?code={shortcode}</code></li>
+                <li><strong>Required parameter:</strong> <code>code</code> — the post shortcode</li>
+                <li><strong>Optional parameter:</strong> <code>fields</code> — comma-separated JSON field names to return (reduces bandwidth)</li>
+                <li><strong>Required headers:</strong></li>
+            </ul>
+
+            <pre><code>x-rapidapi-host: instagram-cheapest.p.rapidapi.com
+x-rapidapi-key: YOUR_RAPIDAPI_KEY</code></pre>
+
+            <h3>Python example: fetching comments</h3>
+
+            <pre><code>import requests
+import json
+
+def fetch_instagram_comments(shortcode, api_key):
+    """Fetch all comments for an Instagram post by shortcode."""
+    url = "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/media_comments"
+
+    headers = {
+        "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+        "x-rapidapi-key": api_key
+    }
+
+    params = {
+        "code": shortcode
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()  # Raise error for bad status codes
+
+    return response.json()
+
+# Usage
+api_key = "YOUR_RAPIDAPI_KEY"
+shortcode = "ABC1234XYZ_"
+
+comments_data = fetch_instagram_comments(shortcode, api_key)
+print(json.dumps(comments_data, indent=2))</code></pre>
+
+            <p>The response is raw JSON containing the comment thread. The exact structure depends on what Instagram returns, but typically you'll find comment text, usernames, timestamps, and nested replies. Print the JSON to inspect the structure and extract the fields you need.</p>
+
+            <h3>curl example: quick command-line test</h3>
+
+            <p>If you just want to see the comments without writing code, use curl:</p>
+
+            <pre><code>curl -X GET \
+  'https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/media_comments?code=ABC1234XYZ_' \
+  -H 'x-rapidapi-host: instagram-cheapest.p.rapidapi.com' \
+  -H 'x-rapidapi-key: YOUR_RAPIDAPI_KEY'</code></pre>
+
+            <p>This will print the raw JSON to your terminal. Pipe it to <code>jq</code> for pretty-printing:</p>
+
+            <pre><code>curl -X GET \
+  'https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/media_comments?code=ABC1234XYZ_' \
+  -H 'x-rapidapi-host: instagram-cheapest.p.rapidapi.com' \
+  -H 'x-rapidapi-key: YOUR_RAPIDAPI_KEY' | jq .</code></pre>
+
+            <h2>Optional: fetching the post metadata first</h2>
+
+            <p>Before fetching comments, you might want to retrieve the post itself to confirm it exists and grab metadata like the caption, like count, or post type. Use the <code>media_by_code2</code> endpoint:</p>
+
+            <pre><code>def fetch_post_by_shortcode(shortcode, api_key):
+    """Fetch Instagram post metadata by shortcode."""
+    url = "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/media_by_code2"
+
+    headers = {
+        "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+        "x-rapidapi-key": api_key
+    }
+
+    params = {
+        "code": shortcode
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()
+
+    return response.json()
+
+# Usage
+post_data = fetch_post_by_shortcode("ABC1234XYZ_", api_key)
+print(json.dumps(post_data, indent=2))</code></pre>
+
+            <p>This returns the post's raw JSON, which typically includes the caption, author username, media URLs, engagement counts, and more. You can extract these fields before pulling comments.</p>
+
+            <h2>Using the <code>fields</code> parameter to reduce bandwidth</h2>
+
+            <p>The API returns verbose raw JSON by default. If you only need specific fields (for example, the comment text and username), use the optional <code>fields</code> parameter to trim the response:</p>
+
+            <pre><code>params = {
+    "code": shortcode,
+    "fields": "text,username,created_at"  # Adjust field names to match the actual JSON
+}</code></pre>
+
+            <p>This dramatically reduces payload size, which keeps you inside the API's 10 GB/month bandwidth allowance and avoids overage charges. Inspect the full JSON response first to identify which fields you need, then filter with <code>fields</code> in production.</p>
+
+            <h2>A complete end-to-end workflow</h2>
+
+            <p>Here's a full Python script that takes an Instagram post URL, extracts the shortcode, fetches the post, and then fetches all comments:</p>
+
+            <pre><code>import requests
+import re
+import json
+
+def extract_shortcode(url):
+    match = re.search(r'/(p|reel)/([A-Za-z0-9_-]+)', url)
+    return match.group(2) if match else None
+
+def fetch_post_by_shortcode(shortcode, api_key):
+    url = "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/media_by_code2"
+    headers = {
+        "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+        "x-rapidapi-key": api_key
+    }
+    params = {"code": shortcode}
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()
+    return response.json()
+
+def fetch_comments(shortcode, api_key):
+    url = "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/media_comments"
+    headers = {
+        "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+        "x-rapidapi-key": api_key
+    }
+    params = {"code": shortcode}
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()
+    return response.json()
+
+# Main workflow
+api_key = "YOUR_RAPIDAPI_KEY"
+post_url = "https://www.instagram.com/p/ABC1234XYZ_/"
+
+shortcode = extract_shortcode(post_url)
+if not shortcode:
+    print("Invalid Instagram URL")
+else:
+    print(f"Shortcode: {shortcode}")
+
+    # Fetch post metadata
+    post = fetch_post_by_shortcode(shortcode, api_key)
+    print(f"Post fetched: {json.dumps(post, indent=2)[:200]}...")
+
+    # Fetch comments
+    comments = fetch_comments(shortcode, api_key)
+    print(f"Comments fetched: {json.dumps(comments, indent=2)}")</code></pre>
+
+            <p>This script is production-ready. Replace <code>YOUR_RAPIDAPI_KEY</code> with your actual key, and swap in a real post URL. The script will print the post metadata and then all comments in JSON format. Parse the JSON to extract the specific comment fields your application needs.</p>
+
+            <h2>Pricing and cost control</h2>
+
+            <p>Each call to <code>media_comments</code> or <code>media_by_code2</code> counts as one request. At scale, your cost depends on the tier:</p>
+
+            <ul>
+                <li><strong>Free Basic tier:</strong> 30 requests/month (perfect for testing)</li>
+                <li><strong>Pro tier ($59/mo):</strong> $0.13 per 1,000 requests</li>
+                <li><strong>Ultra tier ($119/mo):</strong> $0.11 per 1,000 requests</li>
+                <li><strong>Mega tier ($249/mo):</strong> $0.10 per 1,000 requests</li>
+            </ul>
+
+            <p>For a sentiment-analysis pipeline pulling comments from 10,000 posts per month, that's 10,000 requests — around $1.00 to $1.30 at the Mega or Pro rate. Add the <code>fields</code> parameter to avoid bandwidth overage charges, and your all-in cost stays predictable.</p>
+
+            <h2>Common use cases</h2>
+
+            <p>Here are a few real-world scenarios where fetching Instagram comments programmatically is essential:</p>
+
+            <ul>
+                <li><strong>Sentiment analysis:</strong> Pull comments on brand posts to analyze customer feedback and sentiment trends over time.</li>
+                <li><strong>Influencer vetting:</strong> Check if an influencer's comments are genuine engagement or bot spam before signing a partnership.</li>
+                <li><strong>Community monitoring:</strong> Track mentions of your brand or product in comments across competitor posts and hashtags-by-proxy.</li>
+                <li><strong>Research:</strong> Collect public comment data for academic studies on social media behavior, trends, or misinformation.</li>
+            </ul>
+
+            <h2>Compliance and responsible use</h2>
+
+            <p>This API returns <strong>public Instagram data only</strong>. Before scraping comments at scale, ensure you comply with Instagram's terms of service and applicable privacy laws like GDPR and CCPA. You are responsible for how you collect, store, and use the data. The API is not affiliated with or endorsed by Meta or Instagram.</p>
+
+            <h2>Conclusion</h2>
+
+            <p>Fetching Instagram comments via API is straightforward when you have the right endpoint. Extract the shortcode from the post URL, call the <code>media_comments</code> endpoint with your RapidAPI key, and parse the raw JSON response. The Instagram Cheapest API delivers real-time, uncached data at a fraction of the cost of enterprise scrapers — as low as $0.10 per 1,000 requests — making it practical for startups, researchers, and indie developers who need affordable access to public Instagram data.</p>
+
+            <p>Start with the free 30-request tier to test your integration, then scale up as your usage grows. With Python or curl and a valid RapidAPI key, you can be pulling live comments in under five minutes.</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Get started on RapidAPI →</a></strong></p>
+
+            <blockquote>
+                <p><em>Compliance note: this API returns public Instagram data only. You are responsible for complying with Instagram's terms and applicable privacy law (GDPR/CCPA). Not affiliated with or endorsed by Meta/Instagram.</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>Start Building Today</h3>
+            <p>Get 30 free requests per month on the Basic plan. No commitment required.</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">Get Started on RapidAPI</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>Compliance:</strong> Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Not affiliated with or endorsed by Meta or Instagram.
+        </p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/blog/">Blog</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">API on RapidAPI</a>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Get Instagram User ID from Username (and Vice Versa) | Instagram Cheapest</title>
+    <meta name="description" content="Learn how to convert Instagram username to user ID and resolve user ID back to username using Python and curl. Complete guide with API examples.">
+    <meta name="keywords" content="instagram user id, get instagram user id from username, instagram user id lookup, instagram username to id, instagram id to username">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/get-instagram-user-id-from-username/">
+    <meta property="og:title" content="How to Get Instagram User ID from Username (and Vice Versa)">
+    <meta property="og:description" content="Learn how to convert Instagram username to user ID and resolve user ID back to username using Python and curl. Complete guide with API examples.">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/get-instagram-user-id-from-username/">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://instagram.kolapihub.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Get Instagram User ID from Username (and Vice Versa)">
+    <meta name="twitter:description" content="Learn how to convert Instagram username to user ID and resolve user ID back to username using Python and curl. Complete guide with API examples.">
+    <meta name="twitter:image" content="https://instagram.kolapihub.com/og.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "How to Get Instagram User ID from Username (and Vice Versa)",
+      "description": "Learn how to convert Instagram username to user ID and resolve user ID back to username using Python and curl. Complete guide with API examples.",
+      "datePublished": "2026-06-09",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/get-instagram-user-id-from-username/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/">Blog</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free on RapidAPI</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>How to Get Instagram User ID from Username (and Vice Versa)</h1>
+
+            <p>When you're building tools that interact with Instagram data — influencer discovery platforms, competitor trackers, lead-enrichment pipelines — you'll quickly run into the fact that many API endpoints require the numeric <strong>user ID</strong> rather than the human-readable username. For example, to fetch a user's posts, Reels, or tagged media, you need their internal Instagram user ID, not just their <code>@username</code>.</p>
+
+            <p>This guide shows you how to convert an Instagram username to its numeric user ID, and how to reverse the lookup (user ID back to username) using the <strong>Instagram Cheapest API</strong>. We'll cover both directions with Python and curl examples, explain why you need the user ID, and walk through a complete workflow that handles both lookups.</p>
+
+            <h2>Why you need the Instagram user ID</h2>
+
+            <p>Instagram internally identifies every account with a unique numeric ID — a long integer like <code>123456789</code>. While you interact with accounts using their username (for example, <code>@nike</code>), several API operations require the user ID instead:</p>
+
+            <ul>
+                <li><strong>Fetching user media:</strong> The <code>user_media</code> endpoint needs <code>user_id</code> to return a user's posts.</li>
+                <li><strong>Fetching user Reels:</strong> The <code>user_reels</code> endpoint requires <code>user_id</code>.</li>
+                <li><strong>Fetching tagged media:</strong> The <code>user_tag_media</code> endpoint also requires the numeric ID.</li>
+                <li><strong>Looking up user profiles by ID:</strong> The <code>userinfo_by_user_id</code> endpoint retrieves profile details when you only have the ID.</li>
+            </ul>
+
+            <p>The username is human-friendly but can change; the user ID is permanent and serves as the stable identifier for all backend operations. So your first step when working with a username is almost always to resolve it to the user ID.</p>
+
+            <h2>Converting username to user ID</h2>
+
+            <p>The Instagram Cheapest API provides the <code>userinfo</code> endpoint, which accepts a username and returns the full user profile — including the numeric user ID.</p>
+
+            <h3>Endpoint details: <code>userinfo</code></h3>
+
+            <ul>
+                <li><strong>Method:</strong> <code>GET</code></li>
+                <li><strong>URL:</strong> <code>https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user/{username}</code></li>
+                <li><strong>Path parameter:</strong> <code>{username}</code> — the Instagram username (without the <code>@</code> symbol)</li>
+                <li><strong>Optional parameter:</strong> <code>fields</code> — comma-separated field names to reduce response size</li>
+                <li><strong>Required headers:</strong></li>
+            </ul>
+
+            <pre><code>x-rapidapi-host: instagram-cheapest.p.rapidapi.com
+x-rapidapi-key: YOUR_RAPIDAPI_KEY</code></pre>
+
+            <h3>Python example: username to user ID</h3>
+
+            <pre><code>import requests
+import json
+
+def get_user_id_from_username(username, api_key):
+    """Fetch Instagram user profile and extract the numeric user ID."""
+    url = f"https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user/{username}"
+
+    headers = {
+        "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+        "x-rapidapi-key": api_key
+    }
+
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+
+    user_data = response.json()
+    # The exact field name depends on the response structure;
+    # inspect the JSON to find the user ID field (commonly 'id', 'user_id', or 'pk')
+    return user_data
+
+# Usage
+api_key = "YOUR_RAPIDAPI_KEY"
+username = "nike"
+
+user_profile = get_user_id_from_username(username, api_key)
+print(json.dumps(user_profile, indent=2))
+
+# Extract the user ID from the response
+# Example: user_id = user_profile['id'] or user_profile['pk']</code></pre>
+
+            <p>The response is raw JSON containing the user's profile: follower count, bio, profile picture URL, and crucially, the numeric user ID. Print the full JSON to see the structure, then extract the field that holds the ID. Common field names are <code>id</code>, <code>pk</code>, or <code>user_id</code>, depending on what Instagram returns.</p>
+
+            <h3>curl example: quick username lookup</h3>
+
+            <p>To test the lookup from the command line, use curl:</p>
+
+            <pre><code>curl -X GET \
+  'https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user/nike' \
+  -H 'x-rapidapi-host: instagram-cheapest.p.rapidapi.com' \
+  -H 'x-rapidapi-key: YOUR_RAPIDAPI_KEY'</code></pre>
+
+            <p>This prints the full profile JSON. Pipe it to <code>jq</code> to extract just the user ID:</p>
+
+            <pre><code>curl -X GET \
+  'https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user/nike' \
+  -H 'x-rapidapi-host: instagram-cheapest.p.rapidapi.com' \
+  -H 'x-rapidapi-key: YOUR_RAPIDAPI_KEY' | jq '.id'</code></pre>
+
+            <p>Adjust the <code>jq</code> selector (<code>.id</code>, <code>.pk</code>, or <code>.user_id</code>) to match the actual field name in the response.</p>
+
+            <h2>Converting user ID back to username</h2>
+
+            <p>Sometimes you have a numeric user ID — perhaps from a cached database or from another API response — and you need to resolve it back to the current username. The <code>username_by_uid</code> endpoint handles this reverse lookup.</p>
+
+            <h3>Endpoint details: <code>username_by_uid</code></h3>
+
+            <ul>
+                <li><strong>Method:</strong> <code>GET</code></li>
+                <li><strong>URL:</strong> <code>https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/username_by_uid?uid={id}</code></li>
+                <li><strong>Query parameter:</strong> <code>uid</code> — the numeric Instagram user ID</li>
+                <li><strong>Optional parameter:</strong> <code>fields</code> — comma-separated field names</li>
+                <li><strong>Required headers:</strong> same as above</li>
+            </ul>
+
+            <h3>Python example: user ID to username</h3>
+
+            <pre><code>def get_username_from_user_id(user_id, api_key):
+    """Resolve a numeric Instagram user ID back to the username."""
+    url = "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/username_by_uid"
+
+    headers = {
+        "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+        "x-rapidapi-key": api_key
+    }
+
+    params = {
+        "uid": user_id
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()
+
+    return response.json()
+
+# Usage
+user_id = "123456789"
+username_data = get_username_from_user_id(user_id, api_key)
+print(json.dumps(username_data, indent=2))
+
+# Extract the username field from the response
+# Example: username = username_data['username']</code></pre>
+
+            <p>The response returns JSON with the username and possibly additional profile fields. Parse the response to extract the <code>username</code> field.</p>
+
+            <h3>curl example: reverse lookup</h3>
+
+            <pre><code>curl -X GET \
+  'https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/username_by_uid?uid=123456789' \
+  -H 'x-rapidapi-host: instagram-cheapest.p.rapidapi.com' \
+  -H 'x-rapidapi-key: YOUR_RAPIDAPI_KEY'</code></pre>
+
+            <p>Again, pipe to <code>jq '.username'</code> to extract just the username string.</p>
+
+            <h2>A complete bidirectional workflow</h2>
+
+            <p>Here's a Python script that demonstrates both directions: username → user ID, then user ID → username, and finally fetching the user's posts using the resolved ID:</p>
+
+            <pre><code>import requests
+import json
+
+def get_user_profile(username, api_key):
+    """Fetch user profile by username."""
+    url = f"https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user/{username}"
+    headers = {
+        "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+        "x-rapidapi-key": api_key
+    }
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
+def get_username_by_id(user_id, api_key):
+    """Resolve user ID back to username."""
+    url = "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/username_by_uid"
+    headers = {
+        "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+        "x-rapidapi-key": api_key
+    }
+    params = {"uid": user_id}
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()
+    return response.json()
+
+def get_user_media(user_id, api_key):
+    """Fetch user's media posts by numeric user ID."""
+    url = "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/user_media"
+    headers = {
+        "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+        "x-rapidapi-key": api_key
+    }
+    params = {"user_id": user_id}
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()
+    return response.json()
+
+# Main workflow
+api_key = "YOUR_RAPIDAPI_KEY"
+username = "nike"
+
+# Step 1: Username → User ID
+print(f"Looking up user: {username}")
+profile = get_user_profile(username, api_key)
+user_id = profile.get('id') or profile.get('pk')  # Adjust field name as needed
+print(f"User ID: {user_id}")
+
+# Step 2: User ID → Username (reverse check)
+print(f"\nReverse lookup for user ID: {user_id}")
+username_data = get_username_by_id(user_id, api_key)
+resolved_username = username_data.get('username')
+print(f"Resolved username: {resolved_username}")
+
+# Step 3: Fetch user media using the user ID
+print(f"\nFetching media for user ID: {user_id}")
+media = get_user_media(user_id, api_key)
+print(f"Media fetched: {json.dumps(media, indent=2)[:500]}...")
+</code></pre>
+
+            <p>This script performs a round trip: it starts with a username, resolves it to a user ID, confirms the reverse lookup returns the same username, and then uses the user ID to fetch the user's posts. This pattern is the foundation for most Instagram data workflows.</p>
+
+            <h2>When to use each endpoint</h2>
+
+            <p>Here's a quick decision guide:</p>
+
+            <ul>
+                <li><strong>You have a username and need the user ID:</strong> Use <code>userinfo</code> → <code>/api/v1/instagram/user/{username}</code>. Extract the ID from the profile JSON.</li>
+                <li><strong>You have a user ID and need the username:</strong> Use <code>username_by_uid</code> → <code>/api/v1/instagram/username_by_uid?uid={id}</code>.</li>
+                <li><strong>You want the full profile by username:</strong> Use <code>userinfo</code> — it returns follower count, bio, profile picture, and more.</li>
+                <li><strong>You want the full profile by user ID:</strong> Use <code>userinfo_by_user_id</code> → <code>/api/v1/instagram/user_by_user_id?user_id={id}</code>.</li>
+            </ul>
+
+            <p>The <code>userinfo</code> and <code>userinfo_by_user_id</code> endpoints return the complete profile, while <code>username_by_uid</code> is optimized for the lightweight reverse lookup when you only need the username string.</p>
+
+            <h2>Using the <code>fields</code> parameter to save bandwidth</h2>
+
+            <p>Profile JSON can be verbose. If you only need the user ID or username, use the <code>fields</code> parameter to request just that field:</p>
+
+            <pre><code># Request only the user ID field
+params = {
+    "fields": "id"  # or "pk", "username", etc., depending on the response structure
+}</code></pre>
+
+            <p>This shrinks the response payload from potentially tens of kilobytes down to a few hundred bytes, which keeps you inside the API's 10 GB/month bandwidth allowance and avoids overage charges. For bulk lookups across thousands of users, the bandwidth savings add up fast.</p>
+
+            <h2>Pricing and cost control</h2>
+
+            <p>Each API call (to <code>userinfo</code>, <code>username_by_uid</code>, or <code>user_media</code>) counts as one request. At scale, your cost is:</p>
+
+            <ul>
+                <li><strong>Free Basic tier:</strong> 30 requests/month (great for testing)</li>
+                <li><strong>Pro tier ($59/mo):</strong> $0.13 per 1,000 requests</li>
+                <li><strong>Ultra tier ($119/mo):</strong> $0.11 per 1,000 requests</li>
+                <li><strong>Mega tier ($249/mo):</strong> $0.10 per 1,000 requests</li>
+            </ul>
+
+            <p>For example, if you're resolving 50,000 usernames to user IDs per month, that's 50,000 requests — around $5 to $6.50 on the Mega or Pro tier. Use the <code>fields</code> parameter to keep bandwidth under the 10 GB allowance, and your total cost stays predictable.</p>
+
+            <h2>Common use cases</h2>
+
+            <p>Here are a few scenarios where username ↔ user ID conversion is essential:</p>
+
+            <ul>
+                <li><strong>Influencer discovery:</strong> You scrape usernames from hashtag pages or competitor followers, then resolve each to a user ID to fetch their posts, Reels, and engagement metrics.</li>
+                <li><strong>Lead enrichment:</strong> You have a list of Instagram usernames from a CRM; resolve them to user IDs, fetch profiles, and enrich your database with follower counts and bios.</li>
+                <li><strong>Competitor tracking:</strong> Monitor a competitor's username, resolve it to the user ID, and periodically fetch their latest posts and Reels to track content strategy.</li>
+                <li><strong>Username change detection:</strong> Store user IDs in your database; periodically reverse-lookup the ID to detect if the username has changed.</li>
+            </ul>
+
+            <h2>Compliance and responsible use</h2>
+
+            <p>This API returns <strong>public Instagram data only</strong>. You are responsible for using it in compliance with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Always confirm you have a legitimate basis for collecting and processing user data. The API is not affiliated with or endorsed by Meta or Instagram.</p>
+
+            <h2>Conclusion</h2>
+
+            <p>Converting between Instagram username and user ID is a foundational operation for any tool that works with Instagram data. The <strong>Instagram Cheapest API</strong> provides two simple endpoints — <code>userinfo</code> for username → user ID and <code>username_by_uid</code> for the reverse — that return real-time, uncached data at as low as <strong>$0.10 per 1,000 requests</strong>. Combined with endpoints like <code>user_media</code> and <code>user_reels</code>, you have everything you need to build scalable Instagram data pipelines on a budget.</p>
+
+            <p>Start with the free 30-request tier to test your integration, then scale up as your usage grows. With Python or curl and a valid RapidAPI key, you can resolve usernames to IDs (and back) in seconds.</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Get started on RapidAPI →</a></strong></p>
+
+            <blockquote>
+                <p><em>Compliance note: this API returns public Instagram data only. You are responsible for complying with Instagram's terms and applicable privacy law (GDPR/CCPA). Not affiliated with or endorsed by Meta/Instagram.</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>Start Building Today</h3>
+            <p>Get 30 free requests per month on the Basic plan. No commitment required.</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">Get Started on RapidAPI</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>Compliance:</strong> Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Not affiliated with or endorsed by Meta or Instagram.
+        </p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/blog/">Blog</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">API on RapidAPI</a>
+        </div>
+    </footer>
+</body>
+</html>
