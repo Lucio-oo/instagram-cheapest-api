@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Reels &amp; Audio API Tutorial: Scrape Reels, Tracks &amp; Comments | Instagram Cheapest</title>
+    <meta name="description" content="Scrape Instagram Reels, find videos by audio track, and pull comments with the Instagram Cheapest API. Step-by-step Python and Node.js tutorial.">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/instagram-reels-audio-api/">
+    <meta property="og:title" content="Instagram Reels &amp; Audio API Tutorial: Scrape Reels, Tracks &amp; Comments">
+    <meta property="og:description" content="Scrape Instagram Reels, find videos by audio track, and pull comments with the Instagram Cheapest API. Step-by-step Python and Node.js tutorial.">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/instagram-reels-audio-api/">
+    <meta property="og:type" content="article">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Instagram Reels & Audio API Tutorial: Scrape Reels, Tracks & Comments",
+      "description": "Scrape Instagram Reels, find videos by audio track, and pull comments with the Instagram Cheapest API. Step-by-step Python and Node.js tutorial.",
+      "datePublished": "2026-06-09",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/instagram-reels-audio-api/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/">Blog</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free on RapidAPI</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>Instagram Reels &amp; Audio API Tutorial: Scrape Reels, Tracks &amp; Comments</h1>
+
+            <p>Reels are where Instagram's reach lives now, and that makes them the most interesting surface to analyze: which short videos a creator is publishing, which audio tracks are trending, and how people are reacting in the comments. The problem is that getting at this data is awkward. The official Meta Graph API doesn't expose arbitrary public Reels, and scraping the app yourself means dealing with logins, dynamic rendering, and constant breakage.</p>
+
+            <p>In this tutorial we'll use the <strong>Instagram Cheapest</strong> API on RapidAPI to do three things:</p>
+
+            <ol>
+                <li>Pull a creator's Reels with <code>user_reels</code></li>
+                <li>Find every Reel that uses a particular audio track with <code>reels_audio</code></li>
+                <li>Fetch the comments on a specific piece of media with <code>media_comments</code></li>
+            </ol>
+
+            <p>We'll do the main flow in Python with <code>requests</code>, then add a short Node.js snippet so you can drop this into a JavaScript backend too. Everything returns <strong>raw, real-time JSON</strong>.</p>
+
+            <h2>Prerequisites</h2>
+
+            <ul>
+                <li>Python 3.8+ (<code>pip install requests</code>), and optionally Node.js 18+ for the JS snippet</li>
+                <li>A RapidAPI account and a subscription to the <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Instagram Cheapest API</a>. The Basic plan is free (30 calls/month) — enough to work through this guide.</li>
+            </ul>
+
+            <p>Every request uses two headers:</p>
+
+            <ul>
+                <li><code>x-rapidapi-key</code>: your RapidAPI key</li>
+                <li><code>x-rapidapi-host</code>: <code>instagram-cheapest.p.rapidapi.com</code></li>
+            </ul>
+
+            <p>The base URL is <code>https://instagram-cheapest.p.rapidapi.com</code> and all endpoints are <code>GET</code> under <code>/api/v1/instagram</code>.</p>
+
+            <h2>Step 0: A reusable client</h2>
+
+            <pre><code>import requests
+import json
+
+API_KEY = "YOUR_RAPIDAPI_KEY"
+HOST = "instagram-cheapest.p.rapidapi.com"
+BASE_URL = f"https://{HOST}/api/v1/instagram"
+
+HEADERS = {
+    "x-rapidapi-key": API_KEY,
+    "x-rapidapi-host": HOST,
+}
+
+
+def get(path, params=None):
+    resp = requests.get(f"{BASE_URL}/{path}", headers=HEADERS,
+                        params=params, timeout=30)
+    resp.raise_for_status()
+    return resp.json()</code></pre>
+
+            <p>Keep the timeout generous. This API serves live, uncached data, so calls take a real round trip to Instagram — don't set an aggressive 2-second timeout and wonder why requests fail.</p>
+
+            <h2>A note on user IDs</h2>
+
+            <p>Like the posts endpoint, the Reels endpoint identifies a creator by <strong>numeric <code>user_id</code>, not username</strong>. If you only have a handle, resolve it first. The <code>userinfo</code> endpoint (<code>/api/v1/instagram/user/{username}</code>) returns the profile, and the numeric ID is in that payload. There's also <code>username_by_uid</code> for going from an ID back to a handle. Print the profile JSON and pull the ID field you see there:</p>
+
+            <pre><code>def get_user_id(username):
+    profile = get(f"user/{username}")
+    # Inspect the printed profile to confirm the exact key.
+    return profile.get("id") or profile.get("pk")</code></pre>
+
+            <p>From here on we work with that numeric ID.</p>
+
+            <h2>Step 1: Fetch a creator's Reels with <code>user_reels</code></h2>
+
+            <p><code>user_reels</code> takes <code>user_id</code> as a query parameter:</p>
+
+            <pre><code>def get_reels(user_id):
+    return get("user_reels", params={"user_id": user_id})
+
+
+user_id = get_user_id("nike")
+reels = get_reels(user_id)
+
+# Always inspect the shape before iterating.
+print(json.dumps(reels, indent=2)[:2000])</code></pre>
+
+            <p>The response is raw JSON, so look at what comes back before assuming a structure. Reels responses are usually a collection of media objects — possibly at the top level, possibly nested under a key like <code>items</code> or <code>data</code>. Each Reel object typically carries a shortcode, a caption, a video URL or thumbnail, play/like/comment counts, and often a reference to the audio track it uses.</p>
+
+            <p>Iterate defensively and pull only fields you've confirmed exist:</p>
+
+            <pre><code>def iter_reels(reels_response):
+    items = reels_response if isinstance(reels_response, list) else (
+        reels_response.get("items") or reels_response.get("data") or []
+    )
+    for reel in items:
+        yield {
+            "code": reel.get("code") or reel.get("shortcode"),
+            "caption": reel.get("caption"),
+            "plays": reel.get("play_count") or reel.get("view_count"),
+            "likes": reel.get("like_count"),
+            "comments": reel.get("comment_count"),
+        }
+
+
+for reel in iter_reels(reels):
+    print(reel)</code></pre>
+
+            <p>The point of using <code>.get()</code> everywhere and falling back across container keys is resilience: Instagram's payloads evolve, and you want your loop to keep running rather than crash on a renamed field.</p>
+
+            <h2>Step 2: Find Reels by audio track with <code>reels_audio</code></h2>
+
+            <p>This is the fun one. Trending audio drives Reels distribution, so being able to list every Reel using a given track is genuinely useful for trend analysis. The <code>reels_audio</code> endpoint takes an <code>audio_id</code> query parameter:</p>
+
+            <pre><code>def get_reels_by_audio(audio_id):
+    return get("reels_audio", params={"audio_id": audio_id})</code></pre>
+
+            <p>Where do you get an <code>audio_id</code>? In practice you discover it from a Reel you already fetched in Step 1 — many Reel objects include the audio/music metadata, and the track's numeric ID is in there. Inspect a Reel object to locate it, then feed it back in:</p>
+
+            <pre><code># Suppose you spotted an audio id while inspecting a reel object.
+audio_id = "1234567890"  # replace with one you found in the Reels payload
+audio_reels = get_reels_by_audio(audio_id)
+print(json.dumps(audio_reels, indent=2)[:2000])</code></pre>
+
+            <p>The response is, again, a collection of Reels — this time the ones sharing that track. Reuse the same <code>iter_reels</code> helper to walk it. This lets you answer questions like "how many creators are riding this sound?" or "what's the engagement spread on Reels using this track?"</p>
+
+            <h2>Step 3: Pull engagement with <code>media_comments</code></h2>
+
+            <p>To go beyond counts and read actual audience reaction, use <code>media_comments</code>. Note this endpoint identifies media by its <strong>shortcode</strong> (<code>code</code>), not a numeric ID:</p>
+
+            <pre><code>def get_comments(code):
+    return get("media_comments", params={"code": code})
+
+
+# Use a code you pulled from a reel or post earlier.
+code = "CxAmPLe123"  # replace with a real shortcode from your data
+comments = get_comments(code)
+print(json.dumps(comments, indent=2)[:2000])</code></pre>
+
+            <p>Comment payloads are typically a list of comment objects, each generally including the comment text, a like count, and some author info. As always, confirm the keys against your printed output:</p>
+
+            <pre><code>def iter_comments(comments_response):
+    items = comments_response if isinstance(comments_response, list) else (
+        comments_response.get("comments")
+        or comments_response.get("items")
+        or comments_response.get("data") or []
+    )
+    for c in items:
+        yield {
+            "text": c.get("text"),
+            "likes": c.get("comment_like_count") or c.get("like_count"),
+        }
+
+
+for c in iter_comments(comments):
+    print(c)</code></pre>
+
+            <p>Chaining these three endpoints — Reels → audio → comments — gives you a full engagement picture for a creator or a trend without ever touching a headless browser.</p>
+
+            <h2>Error handling</h2>
+
+            <p>Wrap calls so a bad shortcode, expired key, or rate limit doesn't take down your job:</p>
+
+            <pre><code>def safe_get(path, params=None):
+    try:
+        resp = requests.get(f"{BASE_URL}/{path}", headers=HEADERS,
+                            params=params, timeout=30)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.exceptions.HTTPError as e:
+        code = e.response.status_code
+        if code == 404:
+            print(f"Not found: {path}")
+        elif code in (401, 403):
+            print("Auth error — check your x-rapidapi-key.")
+        elif code == 429:
+            print("Rate limited — back off or upgrade your tier.")
+        else:
+            print(f"HTTP {code}: {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+    return None</code></pre>
+
+            <p>Mind the rate limits when looping over many Reels or comment threads — the free Basic tier allows 1 request/second, so pace your calls accordingly.</p>
+
+            <h2>The same flow in Node.js</h2>
+
+            <p>If your stack is JavaScript, here's the <code>user_reels</code> call using the built-in <code>fetch</code> (Node 18+). The headers and query-param pattern are identical:</p>
+
+            <pre><code>const HOST = "instagram-cheapest.p.rapidapi.com";
+const API_KEY = "YOUR_RAPIDAPI_KEY";
+
+async function getReels(userId) {
+  const url = new URL(`https://${HOST}/api/v1/instagram/user_reels`);
+  url.searchParams.set("user_id", userId);
+
+  const resp = await fetch(url, {
+    headers: {
+      "x-rapidapi-key": API_KEY,
+      "x-rapidapi-host": HOST,
+    },
+  });
+
+  if (!resp.ok) {
+    throw new Error(`Request failed: ${resp.status}`);
+  }
+  return resp.json();
+}
+
+getReels("13460080")
+  .then((data) =&gt; console.log(JSON.stringify(data, null, 2)))
+  .catch(console.error);</code></pre>
+
+            <p>Same two headers, same query parameter, same raw JSON back. Swap the path for <code>reels_audio?audio_id=...</code> or <code>media_comments?code=...</code> to hit the other endpoints.</p>
+
+            <h2>Bandwidth tip</h2>
+
+            <p>Reels and comment payloads can get chunky. Every endpoint supports an optional <strong><code>fields</code></strong> parameter so you can request only the JSON fields you need and shrink the response. Each tier includes 10 GB/month (then $0.001/MB), so trimming payloads with <code>fields</code> is the easiest way to stay inside the allowance when you're pulling Reels in bulk.</p>
+
+            <h2>A quick word on cost</h2>
+
+            <p>Pricing here is per request and deliberately low: <strong>from $0.10 per 1,000 requests</strong> on the top Mega tier, $0.11 on Ultra, and $0.13 on Pro, with a free Basic tier (30 calls/month) for testing. Because a single trend analysis can chain many calls — Reels, then audio, then comments — that low per-request cost adds up in your favor. Pair it with the <code>fields</code> parameter to keep bandwidth in check and Reels analytics stays cheap even at volume.</p>
+
+            <h2>Conclusion</h2>
+
+            <p>You've now got a complete Reels workflow: list a creator's Reels with <code>user_reels</code>, pivot on a trending track with <code>reels_audio</code>, and read the room with <code>media_comments</code> — in both Python and Node.js. The recurring discipline is the same as with any raw-JSON API: <strong>print the response, confirm the field names, and iterate generically</strong> so your code survives Instagram's inevitable payload tweaks.</p>
+
+            <p>Start building with the free tier today:</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Get the Instagram Cheapest API on RapidAPI →</a></strong></p>
+
+            <blockquote>
+                <p><em>Compliance note: this API returns public Instagram data only. You are responsible for complying with Instagram's terms and applicable privacy law (GDPR/CCPA). It is not affiliated with or endorsed by Meta/Instagram.</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>Start Building Today</h3>
+            <p>Get 30 free requests per month on the Basic plan. No commitment required.</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">Get Started on RapidAPI</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>Compliance:</strong> Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Not affiliated with or endorsed by Meta or Instagram.
+        </p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/blog/">Blog</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">API on RapidAPI</a>
+        </div>
+    </footer>
+</body>
+</html>

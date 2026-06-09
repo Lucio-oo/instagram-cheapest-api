@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Instagram Profile Data with an API in Python (Followers, Bio, Posts) | Instagram Cheapest</title>
+    <meta name="description" content="Fetch Instagram profile data and a user's posts in Python with the Instagram Cheapest API. Get follower counts, bio, and media with real code.">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/instagram-profile-data-api-python/">
+    <meta property="og:title" content="Get Instagram Profile Data with an API in Python (Followers, Bio, Posts)">
+    <meta property="og:description" content="Fetch Instagram profile data and a user's posts in Python with the Instagram Cheapest API. Get follower counts, bio, and media with real code.">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/instagram-profile-data-api-python/">
+    <meta property="og:type" content="article">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Get Instagram Profile Data with an API in Python (Followers, Bio, Posts)",
+      "description": "Fetch Instagram profile data and a user's posts in Python with the Instagram Cheapest API. Get follower counts, bio, and media with real code.",
+      "datePublished": "2026-06-09",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/instagram-profile-data-api-python/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/">Blog</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free on RapidAPI</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>Get Instagram Profile Data with an API in Python (Followers, Bio, Posts)</h1>
+
+            <p>If you've ever tried to pull a public Instagram profile programmatically, you know the pain. The official Meta Graph API only works for accounts you own (or business accounts you manage through the platform), and rolling your own scraper means fighting login walls, rotating proxies, and parsing brittle HTML that breaks every few weeks.</p>
+
+            <p>This tutorial takes a different route. We'll use the <strong>Instagram Cheapest</strong> API on RapidAPI to fetch a public profile — follower count, bio, and metadata — and then pull that same user's recent posts. Everything is plain Python with <code>requests</code>, real-time JSON, and no scraping infrastructure to maintain.</p>
+
+            <p>By the end you'll have a small, reusable client that:</p>
+
+            <ul>
+                <li>Looks up a profile by username</li>
+                <li>Extracts the numeric <code>user_id</code> from the profile</li>
+                <li>Uses that ID to fetch the user's media</li>
+                <li>Handles errors and trims bandwidth with the <code>fields</code> parameter</li>
+            </ul>
+
+            <h2>Prerequisites</h2>
+
+            <p>You'll need:</p>
+
+            <ul>
+                <li>Python 3.8+ and the <code>requests</code> library (<code>pip install requests</code>)</li>
+                <li>A free RapidAPI account</li>
+                <li>A subscription to the <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Instagram Cheapest API</a> — the Basic plan is free and gives you 30 calls a month, which is plenty to follow along</li>
+            </ul>
+
+            <p>Once subscribed, grab your <code>x-rapidapi-key</code> from the RapidAPI dashboard. Every request needs two headers:</p>
+
+            <ul>
+                <li><code>x-rapidapi-key</code>: your personal key</li>
+                <li><code>x-rapidapi-host</code>: <code>instagram-cheapest.p.rapidapi.com</code></li>
+            </ul>
+
+            <h2>Step 1: Set up the client</h2>
+
+            <p>Let's start with the connection boilerplate. The base URL is <code>https://instagram-cheapest.p.rapidapi.com</code> and all endpoints are <code>GET</code> requests under the <code>/api/v1/instagram</code> path.</p>
+
+            <pre><code>import requests
+
+API_KEY = "YOUR_RAPIDAPI_KEY"  # keep this in an env var in production
+HOST = "instagram-cheapest.p.rapidapi.com"
+BASE_URL = f"https://{HOST}/api/v1/instagram"
+
+HEADERS = {
+    "x-rapidapi-key": API_KEY,
+    "x-rapidapi-host": HOST,
+}
+
+
+def get(path, params=None):
+    """Thin GET wrapper with basic error handling."""
+    url = f"{BASE_URL}/{path}"
+    resp = requests.get(url, headers=HEADERS, params=params, timeout=30)
+    resp.raise_for_status()  # raises on 4xx/5xx
+    return resp.json()</code></pre>
+
+            <p>A note on the timeout: this API returns <strong>real-time, uncached</strong> data straight from Instagram, so responses are not instant. Give each call a generous timeout (30 seconds here) rather than letting it hang or fail prematurely.</p>
+
+            <h2>Step 2: Fetch the profile with <code>userinfo</code></h2>
+
+            <p>The <code>userinfo</code> endpoint takes the username as a <strong>path parameter</strong> — it's the one endpoint that doesn't use a query string. The path is <code>/api/v1/instagram/user/{username}</code>.</p>
+
+            <pre><code>def get_profile(username):
+    return get(f"user/{username}")
+
+
+profile = get_profile("nike")
+print(profile)</code></pre>
+
+            <p>Print the raw response first. The API returns <strong>raw JSON</strong> — exactly what Instagram returns — so the cleanest way to learn the shape is to inspect it directly rather than trust a field name you read in a blog post (including this one). Pretty-print it so you can scan the keys:</p>
+
+            <pre><code>import json
+print(json.dumps(profile, indent=2)[:2000])</code></pre>
+
+            <p>Look through the output for the values you care about. A public profile payload like this typically includes the account's numeric user ID, the follower and following counts, the full name, the biography text, and whether the account is verified or private. The exact key names and nesting are whatever Instagram itself uses, so confirm them against your printed output before hardcoding them.</p>
+
+            <p>Once you've identified the keys, pull them out defensively with <code>.get()</code> so a missing field returns <code>None</code> instead of throwing a <code>KeyError</code>:</p>
+
+            <pre><code>def extract_summary(profile):
+    # Adjust these keys to match what you actually see in the printed JSON.
+    return {
+        "user_id": profile.get("id") or profile.get("pk"),
+        "username": profile.get("username"),
+        "full_name": profile.get("full_name"),
+        "followers": profile.get("follower_count"),
+        "bio": profile.get("biography"),
+    }</code></pre>
+
+            <p>This is the honest way to work with any third-party JSON API: read the real response, then map fields. Don't assume.</p>
+
+            <h2>Step 3: Get the numeric user_id</h2>
+
+            <p>Here's the key thing that trips people up: the <strong>posts and Reels endpoints don't accept a username</strong> — they need the numeric <code>user_id</code>. So your workflow is almost always two-step: resolve username → ID, then use the ID everywhere else.</p>
+
+            <p>You usually already have the ID from the <code>userinfo</code> response in Step 2. But if you only have a numeric UID and need to go the other way — ID back to username — the API gives you <code>username_by_uid</code>:</p>
+
+            <pre><code>def get_username(uid):
+    return get("username_by_uid", params={"uid": uid})
+
+
+# Example: resolve a username from a numeric UID
+print(get_username("13460080"))</code></pre>
+
+            <p>There's also <code>user_by_user_id</code> if you want the full profile starting from an ID instead of a username:</p>
+
+            <pre><code>def get_profile_by_id(user_id):
+    return get("user_by_user_id", params={"user_id": user_id})</code></pre>
+
+            <p>For our flow, we'll just reuse the ID we already extracted from the profile.</p>
+
+            <h2>Step 4: Fetch the user's posts with <code>user_media</code></h2>
+
+            <p>Now we use the numeric ID with <code>user_media</code>, which takes <code>user_id</code> as a query parameter:</p>
+
+            <pre><code>def get_user_media(user_id):
+    return get("user_media", params={"user_id": user_id})
+
+
+summary = extract_summary(profile)
+user_id = summary["user_id"]
+
+media = get_user_media(user_id)
+print(json.dumps(media, indent=2)[:2000])</code></pre>
+
+            <p>Again, inspect the structure before iterating. Media responses are typically a list of post objects (sometimes nested under a key like <code>items</code> or <code>data</code>). Each post object generally carries things like a shortcode, caption, media type (image/video/carousel), and per-post engagement counts. Iterate generically and guard each field:</p>
+
+            <pre><code>def iter_posts(media_response):
+    # The list might be at the top level or under a key — check your output.
+    items = media_response if isinstance(media_response, list) else (
+        media_response.get("items") or media_response.get("data") or []
+    )
+    for post in items:
+        yield {
+            "code": post.get("code") or post.get("shortcode"),
+            "caption": post.get("caption"),
+            "likes": post.get("like_count"),
+            "comments": post.get("comment_count"),
+        }
+
+
+for post in iter_posts(media):
+    print(post)</code></pre>
+
+            <p>Notice the pattern: we never assume the response shape is fixed. We check whether it's a list or a dict, fall back across likely container keys, and use <code>.get()</code> for every field.</p>
+
+            <h2>Step 5: Handle errors properly</h2>
+
+            <p>A production client needs to handle the failures you'll actually hit: a missing username (404), an expired or wrong key (401/403), or rate limiting (429). Wrap the call and branch on the status code:</p>
+
+            <pre><code>def safe_get(path, params=None):
+    try:
+        resp = requests.get(f"{BASE_URL}/{path}", headers=HEADERS,
+                            params=params, timeout=30)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.exceptions.HTTPError as e:
+        status = e.response.status_code
+        if status == 404:
+            print(f"Not found: {path}")
+        elif status in (401, 403):
+            print("Auth problem — check your x-rapidapi-key.")
+        elif status == 429:
+            print("Rate limited — slow down or upgrade your tier.")
+        else:
+            print(f"HTTP {status}: {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"Network/timeout error: {e}")
+    return None</code></pre>
+
+            <p>The 429 case matters because each plan has a rate limit — the free Basic tier is capped at 1 request/second, so add a small delay if you're looping over many usernames.</p>
+
+            <h2>Bandwidth tip: use the <code>fields</code> parameter</h2>
+
+            <p>Every endpoint supports an optional <strong><code>fields</code></strong> parameter that lets you request only the JSON fields you actually need. If you're building a "followers count" widget, you don't need the full bio, profile-pic URLs, and every nested object on every call — that's wasted bandwidth.</p>
+
+            <p>Each tier includes 10 GB/month, after which you pay $0.001/MB. Trimming responses with <code>fields</code> keeps you comfortably inside that allowance:</p>
+
+            <pre><code># Conceptually: ask for a narrower payload to cut response size.
+profile = get("user/nike", params={"fields": "username,follower_count"})</code></pre>
+
+            <p>The provider has a dedicated tutorial on this ("How to use the fields parameter to reduce bandwidth usage"). When you're enriching thousands of profiles, narrowing the payload is the single easiest cost lever you have.</p>
+
+            <h2>A quick word on cost</h2>
+
+            <p>This API is built around being cheap at scale. Pricing is per request, and the per-1,000 rate drops as you move up tiers: <strong>from $0.10 per 1,000 requests</strong> on the top (Mega) tier, $0.11 on Ultra, and $0.13 on Pro. The Basic plan is free with 30 calls/month so you can prototype this whole tutorial without paying anything. Combined with the <code>fields</code> trick to stay under the 10 GB bandwidth allowance, profile enrichment pipelines stay genuinely inexpensive.</p>
+
+            <h2>Conclusion</h2>
+
+            <p>You now have a clean, two-step pattern for pulling public Instagram profile data in Python: resolve the username to a profile with <code>userinfo</code>, grab the numeric <code>user_id</code>, then fan out to <code>user_media</code> (and other ID-based endpoints) from there. Because the API returns raw, real-time JSON, the golden rule is to <strong>print the response and map fields from what you actually see</strong> — never from assumptions.</p>
+
+            <p>Ready to build? Grab your key and start with the free tier:</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Get started with the Instagram Cheapest API on RapidAPI →</a></strong></p>
+
+            <blockquote>
+                <p><em>Compliance note: this API returns public Instagram data only. You're responsible for complying with Instagram's terms and applicable privacy law (GDPR/CCPA). It is not affiliated with or endorsed by Meta/Instagram.</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>Start Building Today</h3>
+            <p>Get 30 free requests per month on the Basic plan. No commitment required.</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">Get Started on RapidAPI</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>Compliance:</strong> Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Not affiliated with or endorsed by Meta or Instagram.
+        </p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/blog/">Blog</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">API on RapidAPI</a>
+        </div>
+    </footer>
+</body>
+</html>
