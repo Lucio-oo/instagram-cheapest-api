@@ -850,7 +850,8 @@ axios.request(options)
                 <div class="pricing-tier">Pro</div>
                 <div class="pricing-price">$59</div>
                 <div class="pricing-period">per month</div>
-                <div class="pricing-feature"><strong>$0.13</strong> per 1,000 requests</div>
+                <div class="pricing-feature"><strong>150,000</strong> requests/month</div>
+                <div class="pricing-feature">then $0.13 / 1,000 overage</div>
                 <div class="pricing-feature">20 req/min rate limit</div>
                 <div class="pricing-feature">10 GB bandwidth included</div>
             </div>
@@ -858,7 +859,8 @@ axios.request(options)
                 <div class="pricing-tier">Ultra</div>
                 <div class="pricing-price">$119</div>
                 <div class="pricing-period">per month</div>
-                <div class="pricing-feature"><strong>$0.11</strong> per 1,000 requests</div>
+                <div class="pricing-feature"><strong>900,000</strong> requests/month</div>
+                <div class="pricing-feature">then $0.11 / 1,000 overage</div>
                 <div class="pricing-feature">40 req/min rate limit</div>
                 <div class="pricing-feature">10 GB bandwidth included</div>
             </div>
@@ -866,7 +868,8 @@ axios.request(options)
                 <div class="pricing-tier">Mega ⭐</div>
                 <div class="pricing-price">$249</div>
                 <div class="pricing-period">per month</div>
-                <div class="pricing-feature"><strong>$0.10</strong> per 1,000 requests</div>
+                <div class="pricing-feature"><strong>3,000,000</strong> requests/month</div>
+                <div class="pricing-feature">then $0.10 / 1,000 overage</div>
                 <div class="pricing-feature">120 req/min rate limit</div>
                 <div class="pricing-feature">10 GB bandwidth included</div>
             </div>
@@ -882,10 +885,10 @@ axios.request(options)
                 <input type="number" id="requests" placeholder="e.g., 50000" value="50000">
             </div>
             <div class="calculator-result">
-                <div class="calculator-result-label">Estimated monthly cost (Mega tier)</div>
-                <div class="calculator-result-value" id="cost">$254.00</div>
+                <div class="calculator-result-label">Estimated monthly cost</div>
+                <div class="calculator-result-value" id="cost">$59.00</div>
             </div>
-            <div class="calculator-note">Mega tier: $249/mo base + $0.0001 per request. Included quota may lower this. Estimate only — see RapidAPI for exact billing.</div>
+            <div class="calculator-note" id="costNote">Cheapest plan: Pro (150,000 requests/month included). Estimate only — see RapidAPI for exact billing.</div>
         </div>
     </section>
 
@@ -1055,12 +1058,26 @@ axios.request(options)
         const requestsInput = document.getElementById('requests');
         const costDisplay = document.getElementById('cost');
 
+        const costNote = document.getElementById('costNote');
         function updateCost() {
-            const requests = parseFloat(requestsInput.value) || 0;
-            const costPerRequest = 0.0001; // Mega tier overage rate
-            const baseFee = 249; // Mega tier monthly base fee
-            const total = baseFee + requests * costPerRequest;
-            costDisplay.textContent = `$${total.toFixed(2)}`;
+            const reqs = parseFloat(requestsInput.value) || 0;
+            const tiers = [
+                { name: 'Pro',   base: 59,  quota: 150000,   rate: 0.00013 },
+                { name: 'Ultra', base: 119, quota: 900000,   rate: 0.00011 },
+                { name: 'Mega',  base: 249, quota: 3000000,  rate: 0.0001  }
+            ];
+            if (reqs <= 30) {
+                costDisplay.textContent = 'Free';
+                if (costNote) costNote.textContent = 'Free Basic plan covers up to 30 requests/month. Estimate only — see RapidAPI for exact billing.';
+                return;
+            }
+            let best = null;
+            for (const t of tiers) {
+                const cost = t.base + Math.max(0, reqs - t.quota) * t.rate;
+                if (!best || cost < best.cost) best = { name: t.name, cost: cost, quota: t.quota };
+            }
+            costDisplay.textContent = `$${best.cost.toFixed(2)}`;
+            if (costNote) costNote.textContent = `Cheapest plan: ${best.name} (${best.quota.toLocaleString()} requests/month included). Estimate only — see RapidAPI for exact billing.`;
         }
 
         requestsInput.addEventListener('input', updateCost);
