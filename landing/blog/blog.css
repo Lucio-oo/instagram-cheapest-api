@@ -14,6 +14,7 @@
     --gray-100: #f3f4f6;
     --gray-200: #e5e7eb;
     --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
     --gray-600: #4b5563;
     --gray-700: #374151;
     --gray-800: #1f2937;
@@ -263,6 +264,38 @@ article blockquote p {
     margin-bottom: 0;
     font-style: italic;
     color: var(--gray-700);
+}
+
+/* Tables */
+.table-wrap {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+}
+
+article table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+article th,
+article td {
+    border: 1px solid var(--gray-200);
+    padding: 0.625rem 0.875rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+article th {
+    background: var(--gray-50);
+    color: var(--gray-900);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+article tbody tr:nth-child(even) {
+    background: var(--gray-50);
 }
 
 /* CTA box */

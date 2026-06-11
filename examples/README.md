@@ -32,6 +32,22 @@ All endpoints are `GET` requests. The API returns real-time, uncached JSON.
 
 **Optional parameter**: `fields` — reduce bandwidth by requesting only specific JSON fields (e.g., `fields=username,full_name,follower_count`).
 
+Prefer a machine-readable contract? There's an [OpenAPI 3.0 spec](https://instagram.kolapihub.com/openapi.yaml) and a [Postman collection](https://instagram.kolapihub.com/postman_collection.json) (import it by URL).
+
+## Pagination
+
+List endpoints return ~12 items per page and accept an optional cursor parameter — omit it on the first call, then pass the cursor found in the previous response:
+
+| Endpoint | Cursor parameter | Next cursor in the response |
+|----------|------------------|-----------------------------|
+| `user_media` | `next_max_id` | top-level `next_max_id` (loop while `more_available` is `true`) |
+| `user_reels` | `after` | `page_info.end_cursor` |
+| `user_tag_media` | `after` | `page_info.end_cursor` |
+| `media_comments` | `after` | `page_info.end_cursor` |
+| `reels_audio` | `max_id` | paging cursor (e.g. `paging_info.max_id`) |
+
+Full walkthrough with runnable loops: [Instagram API pagination guide](https://instagram.kolapihub.com/blog/instagram-api-pagination/). Pace your loop to your plan's rate limit (Basic 1 req/sec · Pro 20 req/min · Ultra 40 req/min · Mega 120 req/min).
+
 ## Examples by Language
 
 ### Bash / curl
@@ -88,6 +104,17 @@ go run go_quickstart.go
 ```
 
 Idiomatic Go client with proper error handling.
+
+### Ruby
+
+**Requirements**: Ruby 2.7+ (standard library only)
+
+```bash
+export RAPIDAPI_KEY='your-api-key-here'
+ruby ruby_quickstart.rb
+```
+
+Plain-Ruby client class using `net/http`, no gems required.
 
 ## API Details
 

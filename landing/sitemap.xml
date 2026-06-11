@@ -11,6 +11,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://instagram.kolapihub.com/compare/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://instagram.kolapihub.com/blog/instagram-profile-data-api-python/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -32,6 +37,11 @@
   </url>
   <url>
     <loc>https://instagram.kolapihub.com/blog/get-instagram-user-id-from-username/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://instagram.kolapihub.com/blog/instagram-api-pagination/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

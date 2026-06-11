@@ -3,12 +3,14 @@
 Real-time Instagram data via raw JSON — from **$0.10 per 1,000 requests**.
 
 [![Subscribe on RapidAPI](https://img.shields.io/badge/RapidAPI-Subscribe-2ecc71)](https://rapidapi.com/liucccccccccccc/api/instagram-cheapest)
+[![OpenAPI 3.0](https://img.shields.io/badge/OpenAPI-3.0-6BA539)](./landing/openapi.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 Official quickstarts and a deployable landing page for the **Instagram Cheapest** API on RapidAPI.
 Fetch public Instagram profiles, posts, Reels, comments, tagged media, and Reels audio as raw, real-time JSON.
 
 **→ Get started (free tier):** https://rapidapi.com/liucccccccccccc/api/instagram-cheapest
+**→ Guides, pricing calculator & API comparison:** https://instagram.kolapihub.com
 
 ## Quick start
 
@@ -53,6 +55,12 @@ All endpoints are `GET` and return raw JSON. Add the optional `fields` query par
 | Media comments | `/api/v1/instagram/media_comments` | `code` |
 | Reels by audio | `/api/v1/instagram/reels_audio` | `audio_id` |
 
+**Pagination:** list endpoints return ~12 items per page. `user_media` takes a `next_max_id` cursor;
+`user_reels`, `user_tag_media`, and `media_comments` take `after`; `reels_audio` takes `max_id`.
+Omit the cursor on the first call, then echo back the cursor from the previous response —
+full loops in the [pagination guide](https://instagram.kolapihub.com/blog/instagram-api-pagination/)
+and parameter-level detail in the [OpenAPI spec](./landing/openapi.yaml).
+
 ## Pricing
 
 | Tier | Monthly | Cost per 1,000 requests | Rate limit |
@@ -66,15 +74,17 @@ Paid tiers are a monthly base fee plus per-request overage. See RapidAPI for cur
 
 ## Repository contents
 
-- **[`examples/`](./examples/)** — runnable quickstarts in cURL, Python, Node.js, PHP, and Go.
-- **[`landing/`](./landing/)** — a self-contained static landing page (deploy to Cloudflare Pages, GitHub Pages, etc.).
+- **[`examples/`](./examples/)** — runnable quickstarts in cURL, Python, Node.js, PHP, Go, and Ruby.
+- **[`landing/`](./landing/)** — the static site behind [instagram.kolapihub.com](https://instagram.kolapihub.com): landing page, [tutorials](https://instagram.kolapihub.com/blog/), and [API comparison](https://instagram.kolapihub.com/compare/).
+- **[`landing/openapi.yaml`](./landing/openapi.yaml)** — OpenAPI 3.0 spec (also served at [instagram.kolapihub.com/openapi.yaml](https://instagram.kolapihub.com/openapi.yaml)) — point your codegen or AI coding assistant at it.
+- **[`landing/postman_collection.json`](./landing/postman_collection.json)** — Postman collection; import by URL: `https://instagram.kolapihub.com/postman_collection.json`.
 
 ## Run the examples
 
 ```bash
 export RAPIDAPI_KEY='your-key'
 python3 examples/python_quickstart.py
-# or:  node examples/node_quickstart.js   |   bash examples/curl.sh
+# or:  node examples/node_quickstart.js   |   bash examples/curl.sh   |   ruby examples/ruby_quickstart.rb
 ```
 
 ## Disclaimer

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram API Pagination: How to Get All Posts from a User | Instagram Cheapest</title>
+    <meta name="description" content="Paginate the Instagram Cheapest API with next_max_id and after cursors — fetch every post, Reel, or comment of a public account in Python, with rate-limit pacing.">
+    <meta name="keywords" content="instagram api pagination, get all instagram posts api, instagram api next_max_id, instagram scraper pagination, fetch all instagram posts, instagram api cursor">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/instagram-api-pagination/">
+    <meta property="og:title" content="Instagram API Pagination: How to Get All Posts from a User">
+    <meta property="og:description" content="Paginate the Instagram Cheapest API with next_max_id and after cursors — fetch every post, Reel, or comment of a public account in Python.">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/instagram-api-pagination/">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://instagram.kolapihub.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Instagram API Pagination: How to Get All Posts from a User">
+    <meta name="twitter:description" content="Paginate the Instagram Cheapest API with next_max_id and after cursors — fetch every post, Reel, or comment of a public account in Python.">
+    <meta name="twitter:image" content="https://instagram.kolapihub.com/og.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Instagram API Pagination: How to Get All Posts from a User",
+      "description": "Paginate the Instagram Cheapest API with next_max_id and after cursors — fetch every post, Reel, or comment of a public account in Python, with rate-limit pacing.",
+      "datePublished": "2026-06-11",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/instagram-api-pagination/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/">Blog</a>
+                <a href="/compare/">Compare</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free on RapidAPI</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>Instagram API Pagination: How to Get All Posts from a User</h1>
+
+            <p>One API call to <code>user_media</code> returns about <strong>12 posts</strong>. That's by design — Instagram serves feeds in pages, and so does any API built on top of it. If you want <em>every</em> post from an account (or every comment on a post, or every Reel), you need to paginate with cursors.</p>
+
+            <p>This guide documents exactly how pagination works on the <strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Instagram Cheapest API</a></strong>: which cursor parameter each endpoint takes, where to find the cursor in the response, how to pace your loop against your plan's rate limit, and what a full crawl actually costs (spoiler: scraping a 1,000-post account costs about a cent in request fees).</p>
+
+            <h2>The cursor cheat sheet</h2>
+
+            <p>Five of the nine endpoints are paginated. Each one accepts an optional cursor parameter — omit it on the first call, then pass the cursor value you find in the previous response:</p>
+
+            <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Cursor parameter</th>
+                        <th>Where the next cursor appears in the response</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>user_media</code></td>
+                        <td><code>next_max_id</code></td>
+                        <td>Top-level <code>next_max_id</code>; keep going while <code>more_available</code> is <code>true</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>user_reels</code></td>
+                        <td><code>after</code></td>
+                        <td><code>page_info.end_cursor</code>; keep going while <code>page_info.has_next_page</code> is <code>true</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>user_tag_media</code></td>
+                        <td><code>after</code></td>
+                        <td><code>page_info.end_cursor</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>media_comments</code></td>
+                        <td><code>after</code></td>
+                        <td><code>page_info.end_cursor</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>reels_audio</code></td>
+                        <td><code>max_id</code></td>
+                        <td>Paging cursor in the response (e.g. <code>paging_info.max_id</code>)</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <p>The non-paginated endpoints — <code>user/{username}</code>, <code>user_by_user_id</code>, <code>username_by_uid</code>, and <code>media_by_code2</code> — return a single resource, so there's nothing to page through.</p>
+
+            <p>Responses are <strong>raw Instagram JSON</strong>, so the exact nesting around <code>page_info</code> differs per endpoint and can shift when Instagram reshuffles its payloads. The defensive pattern further down handles that without hardcoding deep paths.</p>
+
+            <h2>Setup</h2>
+
+            <p>You'll need a RapidAPI key (the <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">free Basic plan</a> gives you 30 requests/month to test) and the numeric user ID of the account. If you only have the username, resolve it first — that's covered in <a href="/blog/get-instagram-user-id-from-username/">how to get an Instagram user ID from a username</a>.</p>
+
+            <pre><code>import os
+import time
+import requests
+
+BASE = "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram"
+HEADERS = {
+    "x-rapidapi-key": os.environ["RAPIDAPI_KEY"],
+    "x-rapidapi-host": "instagram-cheapest.p.rapidapi.com",
+}</code></pre>
+
+            <h2>Fetching every post with <code>next_max_id</code></h2>
+
+            <p>The <code>user_media</code> endpoint has the friendliest pagination contract: the response carries <code>items</code> (the posts), <code>more_available</code> (whether another page exists), and <code>next_max_id</code> (the cursor for the next page) at the top level.</p>
+
+            <pre><code>def fetch_all_user_media(user_id, max_pages=None, pause=3.1):
+    """Fetch every post from a public account, page by page."""
+    items, cursor, page = [], "", 0
+
+    while True:
+        params = {"user_id": user_id}
+        if cursor:
+            params["next_max_id"] = cursor
+
+        resp = requests.get(f"{BASE}/user_media", headers=HEADERS,
+                            params=params, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+
+        batch = data.get("items", [])
+        items.extend(batch)
+        page += 1
+        print(f"page {page}: +{len(batch)} posts ({len(items)} total)")
+
+        if not data.get("more_available"):
+            break                       # reached the oldest post
+        cursor = data.get("next_max_id") or ""
+        if not cursor:
+            break                       # no cursor — stop defensively
+        if max_pages and page >= max_pages:
+            break                       # optional safety cap
+
+        time.sleep(pause)               # stay inside your plan's rate limit
+
+    return items
+
+
+posts = fetch_all_user_media("25025320")   # e.g. resolve "nike" -> 25025320 first
+print(f"Done: {len(posts)} posts")</code></pre>
+
+            <p>Three details worth copying even if you rewrite the rest:</p>
+
+            <ul>
+                <li><strong>Stop on <code>more_available</code>, not on an empty page.</strong> That's the API's explicit "you've reached the end" signal.</li>
+                <li><strong>Treat a missing cursor as the end too.</strong> Raw JSON means you code defensively.</li>
+                <li><strong>A <code>max_pages</code> cap</strong> protects you from accidentally crawling a 10,000-post account when you only wanted a sample.</li>
+            </ul>
+
+            <h2>Pacing the loop: rate limits per plan</h2>
+
+            <p>Each plan has its own request rate limit, and a pagination loop is exactly the kind of code that slams into it. Set your sleep interval from your tier:</p>
+
+            <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Plan</th>
+                        <th>Rate limit</th>
+                        <th>Safe pause between calls</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Basic ($0)</td><td>1 req/sec</td><td>≥ 1.1 s</td></tr>
+                    <tr><td>Pro ($59/mo)</td><td>20 req/min</td><td>≥ 3.1 s</td></tr>
+                    <tr><td>Ultra ($119/mo)</td><td>40 req/min</td><td>≥ 1.6 s</td></tr>
+                    <tr><td>Mega ($249/mo)</td><td>120 req/min</td><td>≥ 0.6 s</td></tr>
+                </tbody>
+            </table>
+            </div>
+
+            <p>If you get a <code>429</code> anyway, back off and retry — don't tighten the loop. (Latency on this API is ~4.5s per call, so a crawl is a batch job by nature; schedule it, don't make a user wait on it.)</p>
+
+            <h2>Paginating comments with <code>after</code></h2>
+
+            <p>The GraphQL-backed endpoints (<code>user_reels</code>, <code>user_tag_media</code>, <code>media_comments</code>) use Instagram's cursor convention instead: a <code>page_info</code> object containing <code>end_cursor</code> and <code>has_next_page</code>. Because the raw JSON nests that object at different depths per endpoint, the robust move is a small recursive finder instead of a hardcoded path:</p>
+
+            <pre><code>def find_key(obj, key):
+    """Depth-first search for the first occurrence of `key` in nested JSON."""
+    if isinstance(obj, dict):
+        if key in obj:
+            return obj[key]
+        for value in obj.values():
+            found = find_key(value, key)
+            if found is not None:
+                return found
+    elif isinstance(obj, list):
+        for value in obj:
+            found = find_key(value, key)
+            if found is not None:
+                return found
+    return None
+
+
+def fetch_all_comments(shortcode, max_pages=20, pause=3.1):
+    """Fetch comment pages for a post/Reel until exhausted (or max_pages)."""
+    pages, cursor = [], None
+
+    for _ in range(max_pages):
+        params = {"code": shortcode}
+        if cursor:
+            params["after"] = cursor
+
+        resp = requests.get(f"{BASE}/media_comments", headers=HEADERS,
+                            params=params, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        pages.append(data)
+
+        page_info = find_key(data, "page_info") or {}
+        if not page_info.get("has_next_page"):
+            break
+        cursor = page_info.get("end_cursor")
+        if not cursor:
+            break
+
+        time.sleep(pause)
+
+    return pages</code></pre>
+
+            <p>The same loop works for <code>user_reels</code> and <code>user_tag_media</code> — swap the endpoint and the required parameter (<code>user_id</code> instead of <code>code</code>). For <code>reels_audio</code>, the cursor parameter is <code>max_id</code> and the response's paging cursor lives in its paging info; print one response and adapt the two cursor lines.</p>
+
+            <p>Where do the actual comments live in each page? Inspect one page with <code>print(json.dumps(page, indent=2)[:2000])</code> and pull what you need — the structure is Instagram's own, which is exactly the point: nothing is stripped away. For a gentler introduction to this endpoint, see the <a href="/blog/instagram-comments-api/">Instagram comments API tutorial</a>.</p>
+
+            <h2>What does a full crawl cost?</h2>
+
+            <p>At ~12 posts per page, a <strong>1,000-post account is about 84 requests</strong>. In request fees:</p>
+
+            <ul>
+                <li>On <strong>Pro</strong> ($59/mo with <strong>150,000 requests included</strong>), 84 requests is 0.06% of your monthly quota — effectively free within the base fee. You could crawl ~1,700 such accounts inside the included quota.</li>
+                <li>Counted at the <strong>Mega overage rate</strong> of $0.10 per 1,000 requests, 84 requests ≈ <strong>$0.008</strong> — call it a cent.</li>
+            </ul>
+
+            <p>That per-record economics is the whole pitch of this API — the <a href="/compare/">2026 comparison</a> shows the same crawl costs ~15× more per record on Bright Data. Two cost-control habits to keep it that way:</p>
+
+            <ul>
+                <li><strong>Add the <code>fields</code> parameter</strong> once you know which keys you need — every tier includes 10 GB/month of bandwidth, and trimmed responses keep a big crawl well inside it.</li>
+                <li><strong>Persist cursors</strong> if you crawl incrementally (store the newest post ID you've seen; on the next run, stop paginating when you reach it instead of re-crawling the whole account).</li>
+            </ul>
+
+            <h2>Common pitfalls</h2>
+
+            <ul>
+                <li><strong>Reusing old cursors.</strong> Cursors are opaque and tied to a crawl session; if a stored cursor stops working, restart from a blank first page.</li>
+                <li><strong>Assuming a fixed page size.</strong> ~12 is typical, but treat it as approximate — always loop on the "has more" signal, never on item counts.</li>
+                <li><strong>Parsing brittle paths.</strong> Raw Instagram JSON can change shape; prefer <code>dict.get()</code> chains or a recursive finder like <code>find_key</code> over six-level hardcoded lookups.</li>
+                <li><strong>Ignoring the rate limit.</strong> Pagination loops are tight loops; the <code>time.sleep()</code> is not optional on smaller plans.</li>
+            </ul>
+
+            <h2>Conclusion</h2>
+
+            <p>Pagination on the Instagram Cheapest API comes down to one rule: <em>omit the cursor on the first call, then echo back the cursor the response gives you</em> — <code>next_max_id</code> for posts, <code>after</code> (from <code>page_info.end_cursor</code>) for Reels, tagged media, and comments, and <code>max_id</code> for Reels audio. With a paced loop and the <code>fields</code> parameter, crawling entire public accounts costs pennies, not dollars.</p>
+
+            <p>The machine-readable version of everything above — every endpoint, parameter, and cursor — is in the <a href="/openapi.yaml">OpenAPI spec</a>, with a ready-to-import <a href="/postman_collection.json">Postman collection</a> to match.</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Get your free API key on RapidAPI →</a></strong></p>
+
+            <blockquote>
+                <p><em>Compliance note: this API returns public Instagram data only. You are responsible for complying with Instagram's terms and applicable privacy law (GDPR/CCPA). Not affiliated with or endorsed by Meta/Instagram.</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>Start Building Today</h3>
+            <p>Get 30 free requests per month on the Basic plan. No commitment required.</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">Get Started on RapidAPI</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>Compliance:</strong> Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Not affiliated with or endorsed by Meta or Instagram.
+        </p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/blog/">Blog</a>
+            <a href="/compare/">Compare</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">API on RapidAPI</a>
+        </div>
+    </footer>
+</body>
+</html>

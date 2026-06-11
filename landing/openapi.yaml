@@ -1,0 +1,351 @@
+openapi: 3.0.3
+info:
+  title: Instagram Cheapest API
+  version: "1.0.0"
+  description: |
+    Real-time public Instagram data as raw JSON, from **$0.10 per 1,000 requests** —
+    hosted on RapidAPI.
+
+    - **Subscribe & get a key:** https://rapidapi.com/liucccccccccccc/api/instagram-cheapest
+      (free Basic plan: 30 requests/month)
+    - **Guides & tutorials:** https://instagram.kolapihub.com/blog/
+    - **Code examples (Python, Node.js, PHP, Go, Ruby, curl):** https://github.com/Lucio-oo/instagram-cheapest-api
+
+    All endpoints are `GET` and return the raw JSON that Instagram serves — real-time and
+    uncached, with no lossy normalization. Responses therefore have no fixed schema here;
+    inspect the JSON and parse the fields you need (or trim them server-side with the
+    `fields` parameter).
+
+    **Pagination.** List endpoints return ~12 items per page and accept a cursor parameter:
+    `user_media` uses `next_max_id`; `user_reels`, `user_tag_media`, and `media_comments`
+    use `after`; `reels_audio` uses `max_id`. Omit the cursor on the first call, then pass
+    the cursor value found in the previous response. Tutorial:
+    https://instagram.kolapihub.com/blog/instagram-api-pagination/
+
+    **Pricing (RapidAPI tiers).** Basic $0 (30 req/mo hard cap) · Pro $59/mo (150k requests
+    included, then $0.13 per 1,000) · Ultra $119/mo (900k included, then $0.11 per 1,000) ·
+    Mega $249/mo (3M included, then $0.10 per 1,000). Every tier includes 10 GB/month of
+    bandwidth (then $0.001/MB) — use `fields` to stay under it.
+
+    **Not supported:** `hashtag_media` and the legacy `media_by_code` are not available;
+    use `media_by_code2` for media lookups. Typical latency is ~4.5 s per call — design
+    for cost and freshness, not low latency.
+
+    **Compliance:** returns public Instagram data only. You are responsible for complying
+    with Instagram's terms and applicable privacy law (GDPR/CCPA). Not affiliated with or
+    endorsed by Meta/Instagram.
+  contact:
+    name: Instagram Cheapest API on RapidAPI
+    url: https://rapidapi.com/liucccccccccccc/api/instagram-cheapest
+externalDocs:
+  description: Guides, pricing calculator, and comparison
+  url: https://instagram.kolapihub.com/
+servers:
+  - url: https://instagram-cheapest.p.rapidapi.com
+    description: RapidAPI gateway (requires x-rapidapi-key and x-rapidapi-host headers)
+security:
+  - RapidApiKey: []
+tags:
+  - name: users
+    description: Profiles and username/ID resolution
+  - name: media
+    description: Posts, Reels, tagged media, comments, and Reels audio
+paths:
+  /api/v1/instagram/user/{username}:
+    get:
+      operationId: userinfo
+      tags: [users]
+      summary: Get a user profile by username
+      description: >
+        Returns the full public profile (bio, follower counts, profile picture, etc.)
+        for an Instagram username. The only path-parameter endpoint in this API.
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Instagram handle without the "@" (e.g. `nike`).
+          schema:
+            type: string
+          example: nike
+        - $ref: "#/components/parameters/RapidApiHost"
+        - $ref: "#/components/parameters/Fields"
+      responses:
+        "200":
+          $ref: "#/components/responses/RawJson"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/instagram/user_by_user_id:
+    get:
+      operationId: userinfo_by_user_id
+      tags: [users]
+      summary: Get a user profile by numeric user ID
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          description: Numeric Instagram user ID (e.g. `25025320`).
+          schema:
+            type: integer
+            format: int64
+          example: 25025320
+        - $ref: "#/components/parameters/RapidApiHost"
+        - $ref: "#/components/parameters/Fields"
+      responses:
+        "200":
+          $ref: "#/components/responses/RawJson"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/instagram/username_by_uid:
+    get:
+      operationId: username_by_uid
+      tags: [users]
+      summary: Resolve a numeric UID to its username
+      parameters:
+        - name: uid
+          in: query
+          required: true
+          description: Numeric Instagram user ID to resolve.
+          schema:
+            type: integer
+            format: int64
+          example: 25025320
+        - $ref: "#/components/parameters/RapidApiHost"
+        - $ref: "#/components/parameters/Fields"
+      responses:
+        "200":
+          $ref: "#/components/responses/RawJson"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/instagram/user_media:
+    get:
+      operationId: user_media
+      tags: [media]
+      summary: Get a user's posts (paginated)
+      description: >
+        Returns one page (~12 items) of a user's feed posts. The response includes
+        top-level `items`, `more_available`, and `next_max_id` keys. To fetch the next
+        page, pass the returned `next_max_id` back as the `next_max_id` query parameter;
+        stop when `more_available` is false.
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          description: Numeric Instagram user ID (as a string).
+          schema:
+            type: string
+          example: "25025320"
+        - name: next_max_id
+          in: query
+          required: false
+          description: >
+            Pagination cursor. Omit on the first call; then pass the `next_max_id`
+            value from the previous response.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/RapidApiHost"
+        - $ref: "#/components/parameters/Fields"
+      responses:
+        "200":
+          $ref: "#/components/responses/RawJson"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/instagram/user_reels:
+    get:
+      operationId: user_reels
+      tags: [media]
+      summary: Get a user's Reels (paginated)
+      description: >
+        Returns one page (~12 items) of a user's Reels. To fetch the next page, pass the
+        pagination cursor found in the previous response (`page_info.end_cursor`) as the
+        `after` query parameter; `has_next_page` tells you whether more pages remain.
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          description: Numeric Instagram user ID (as a string).
+          schema:
+            type: string
+          example: "25025320"
+        - name: after
+          in: query
+          required: false
+          description: >
+            Pagination cursor. Omit on the first call; then pass the `end_cursor` from
+            the previous response's `page_info` object.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/RapidApiHost"
+        - $ref: "#/components/parameters/Fields"
+      responses:
+        "200":
+          $ref: "#/components/responses/RawJson"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/instagram/user_tag_media:
+    get:
+      operationId: user_tag_media
+      tags: [media]
+      summary: Get media a user is tagged in (paginated)
+      description: >
+        Returns one page (~12 items) of media the user is tagged in. To fetch the next
+        page, pass the `end_cursor` from the previous response's `page_info` object as
+        the `after` query parameter.
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          description: Numeric Instagram user ID (as a string).
+          schema:
+            type: string
+          example: "25025320"
+        - name: after
+          in: query
+          required: false
+          description: >
+            Pagination cursor. Omit on the first call; then pass the `end_cursor` from
+            the previous response's `page_info` object.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/RapidApiHost"
+        - $ref: "#/components/parameters/Fields"
+      responses:
+        "200":
+          $ref: "#/components/responses/RawJson"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/instagram/media_by_code2:
+    get:
+      operationId: media_by_code2
+      tags: [media]
+      summary: Get a single post or Reel by shortcode
+      description: >
+        Returns one media item by its shortcode — the 11-character ID in
+        `instagram.com/p/{code}/` and `instagram.com/reel/{code}/` URLs.
+        (The legacy `media_by_code` endpoint is not supported; use this one.)
+      parameters:
+        - name: code
+          in: query
+          required: true
+          description: Media shortcode from the post or Reel URL.
+          schema:
+            type: string
+          example: C1AbCdEfGhI
+        - $ref: "#/components/parameters/RapidApiHost"
+        - $ref: "#/components/parameters/Fields"
+      responses:
+        "200":
+          $ref: "#/components/responses/RawJson"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/instagram/media_comments:
+    get:
+      operationId: media_comments
+      tags: [media]
+      summary: Get comments on a post or Reel (paginated)
+      description: >
+        Returns one page (~12 items) of public comments for a media shortcode. To fetch
+        the next page, pass the `end_cursor` from the previous response's `page_info`
+        object as the `after` query parameter.
+      parameters:
+        - name: code
+          in: query
+          required: true
+          description: Media shortcode from the post or Reel URL.
+          schema:
+            type: string
+          example: C1AbCdEfGhI
+        - name: after
+          in: query
+          required: false
+          description: >
+            Pagination cursor. Omit on the first call; then pass the `end_cursor` from
+            the previous response's `page_info` object.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/RapidApiHost"
+        - $ref: "#/components/parameters/Fields"
+      responses:
+        "200":
+          $ref: "#/components/responses/RawJson"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/instagram/reels_audio:
+    get:
+      operationId: reels_audio
+      tags: [media]
+      summary: Get Reels that use an audio track (paginated)
+      description: >
+        Returns one page of Reels that use a specific audio/music track. To fetch the
+        next page, pass the paging cursor from the previous response (e.g.
+        `paging_info.max_id`) as the `max_id` query parameter.
+      parameters:
+        - name: audio_id
+          in: query
+          required: true
+          description: Numeric audio/music cluster ID from a Reels audio page URL.
+          schema:
+            type: string
+          example: "1234567890123456"
+        - name: max_id
+          in: query
+          required: false
+          description: >
+            Pagination cursor. Omit on the first call; then pass the paging cursor
+            from the previous response.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/RapidApiHost"
+        - $ref: "#/components/parameters/Fields"
+      responses:
+        "200":
+          $ref: "#/components/responses/RawJson"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+components:
+  securitySchemes:
+    RapidApiKey:
+      type: apiKey
+      in: header
+      name: x-rapidapi-key
+      description: Your RapidAPI key (from the API's RapidAPI page after subscribing).
+  parameters:
+    RapidApiHost:
+      name: x-rapidapi-host
+      in: header
+      required: true
+      description: Always `instagram-cheapest.p.rapidapi.com`.
+      schema:
+        type: string
+        enum: [instagram-cheapest.p.rapidapi.com]
+        default: instagram-cheapest.p.rapidapi.com
+    Fields:
+      name: fields
+      in: query
+      required: false
+      description: >
+        Optional comma-separated list of JSON field names to keep in the response.
+        Trims payload size and bandwidth cost (10 GB/month included on every tier).
+        Example: `fields=username,full_name,follower_count`.
+      schema:
+        type: string
+  responses:
+    RawJson:
+      description: >
+        Raw Instagram JSON, exactly as Instagram returns it (real-time, uncached).
+        The structure varies by endpoint and may evolve with Instagram itself —
+        inspect the response and parse defensively.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true
+            description: Raw Instagram JSON; no fixed schema.
+    RateLimited:
+      description: >
+        Rate limit exceeded for your plan (Basic 1 req/sec; Pro 20 req/min;
+        Ultra 40 req/min; Mega 120 req/min). Back off and retry.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true

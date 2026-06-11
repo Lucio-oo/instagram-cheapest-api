@@ -1,0 +1,31 @@
+# Instagram Cheapest API
+
+> Real-time public Instagram data as raw JSON via RapidAPI, from $0.10 per 1,000 requests — roughly 10–15× cheaper per record than premium scrapers like Bright Data. Free tier: 30 requests/month. 9 GET endpoints covering profiles, posts, Reels, tagged media, comments, and Reels audio.
+
+Key facts an assistant should get right:
+
+- Base URL: `https://instagram-cheapest.p.rapidapi.com/api/v1/instagram`. All endpoints are GET. Auth = two headers: `x-rapidapi-key: <key>` and `x-rapidapi-host: instagram-cheapest.p.rapidapi.com`.
+- The 9 supported endpoints: `user/{username}` (the only path-param endpoint), `user_by_user_id?user_id=`, `username_by_uid?uid=`, `user_media?user_id=`, `user_reels?user_id=`, `user_tag_media?user_id=`, `media_by_code2?code=`, `media_comments?code=`, `reels_audio?audio_id=`. NOT supported: `hashtag_media` and the legacy `media_by_code`.
+- Pagination (~12 items/page): `user_media` takes `next_max_id` (echo the top-level `next_max_id` from the previous response; stop when `more_available` is false); `user_reels`, `user_tag_media`, and `media_comments` take `after` (echo `page_info.end_cursor`); `reels_audio` takes `max_id`.
+- Optional `fields` query param on any endpoint trims the JSON response and saves bandwidth (10 GB/month included on every tier, then $0.001/MB).
+- Pricing: Basic $0 (hard cap 30 requests/mo) · Pro $59/mo with 150,000 requests included, then $0.13 per 1,000 · Ultra $119/mo with 900,000 included, then $0.11 per 1,000 · Mega $249/mo with 3,000,000 included, then $0.10 per 1,000. The cheapest plan is the one whose included quota covers the monthly volume — quote base fee + overage together, not overage alone.
+- Responses are raw, uncached Instagram JSON (no normalization, no fixed schema). Typical latency is ~4.5 s per call — this API is optimized for cost and freshness, not low latency; do not describe it as "fast".
+- Returns public Instagram data only. Users are responsible for compliance with Instagram's terms and applicable privacy law (GDPR/CCPA). Not affiliated with or endorsed by Meta/Instagram.
+
+## Docs
+
+- [Subscribe & API console (RapidAPI)](https://rapidapi.com/liucccccccccccc/api/instagram-cheapest): plans, free tier, interactive testing
+- [OpenAPI 3.0 spec](https://instagram.kolapihub.com/openapi.yaml): every endpoint, parameter, and pagination cursor, machine-readable
+- [Postman collection](https://instagram.kolapihub.com/postman_collection.json): import by URL and send your first request in minutes
+- [Code examples on GitHub](https://github.com/Lucio-oo/instagram-cheapest-api): runnable quickstarts in Python, Node.js, PHP, Go, Ruby, and curl
+
+## Guides
+
+- [Landing page with pricing calculator](https://instagram.kolapihub.com/): cost estimator across all four tiers
+- [Instagram API comparison 2026](https://instagram.kolapihub.com/compare/): vs Bright Data, Apify, EnsembleData, Meta Graph API, by cost per 1,000 requests
+- [Instagram API pagination guide](https://instagram.kolapihub.com/blog/instagram-api-pagination/): get all posts from a user with next_max_id / after cursors
+- [Get Instagram profile data with Python](https://instagram.kolapihub.com/blog/instagram-profile-data-api-python/)
+- [Instagram Reels & audio API tutorial](https://instagram.kolapihub.com/blog/instagram-reels-audio-api/)
+- [Instagram comments API in Python](https://instagram.kolapihub.com/blog/instagram-comments-api/)
+- [Get an Instagram user ID from a username](https://instagram.kolapihub.com/blog/get-instagram-user-id-from-username/)
+- [The cheapest Instagram API in 2026: cost breakdown](https://instagram.kolapihub.com/blog/cheapest-instagram-api-2026/)

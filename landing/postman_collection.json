@@ -1,0 +1,199 @@
+{
+  "info": {
+    "_postman_id": "7e3f1a20-9c44-4b6e-8d2a-5b9e1c0f4a21",
+    "name": "Instagram Cheapest API",
+    "description": "Real-time public Instagram data as raw JSON, from $0.10 per 1,000 requests (RapidAPI).\n\n1. Subscribe (free Basic plan: 30 req/month): https://rapidapi.com/liucccccccccccc/api/instagram-cheapest\n2. Set the `rapidapiKey` collection variable to your RapidAPI key.\n3. Send any request — all endpoints are GET and return raw Instagram JSON.\n\nPagination: list endpoints return ~12 items per page. user_media uses `next_max_id`; user_reels / user_tag_media / media_comments use `after`; reels_audio uses `max_id`. Omit the cursor on the first call, then pass the cursor from the previous response. Tutorial: https://instagram.kolapihub.com/blog/instagram-api-pagination/\n\nOptional `fields` param on every endpoint trims the JSON response (e.g. fields=username,full_name,follower_count).\n\nCompliance: public Instagram data only; you are responsible for complying with Instagram's terms and applicable privacy law. Not affiliated with Meta/Instagram.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram",
+      "type": "string"
+    },
+    {
+      "key": "rapidapiKey",
+      "value": "YOUR_RAPIDAPI_KEY",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key", "value": "x-rapidapi-key", "type": "string" },
+      { "key": "value", "value": "{{rapidapiKey}}", "type": "string" },
+      { "key": "in", "value": "header", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "userinfo — profile by username",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-rapidapi-host", "value": "instagram-cheapest.p.rapidapi.com" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/nike",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "nike"],
+          "query": [
+            { "key": "fields", "value": "username,full_name,follower_count", "description": "Optional: trim the JSON response to these fields", "disabled": true }
+          ]
+        },
+        "description": "Full public profile for a username. The only path-param endpoint."
+      }
+    },
+    {
+      "name": "userinfo_by_user_id — profile by numeric ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-rapidapi-host", "value": "instagram-cheapest.p.rapidapi.com" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user_by_user_id?user_id=25025320",
+          "host": ["{{baseUrl}}"],
+          "path": ["user_by_user_id"],
+          "query": [
+            { "key": "user_id", "value": "25025320", "description": "Numeric Instagram user ID" },
+            { "key": "fields", "value": "", "description": "Optional: comma-separated fields to keep", "disabled": true }
+          ]
+        }
+      }
+    },
+    {
+      "name": "username_by_uid — resolve UID to username",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-rapidapi-host", "value": "instagram-cheapest.p.rapidapi.com" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/username_by_uid?uid=25025320",
+          "host": ["{{baseUrl}}"],
+          "path": ["username_by_uid"],
+          "query": [
+            { "key": "uid", "value": "25025320", "description": "Numeric Instagram user ID" },
+            { "key": "fields", "value": "", "description": "Optional: comma-separated fields to keep", "disabled": true }
+          ]
+        }
+      }
+    },
+    {
+      "name": "user_media — user's posts (paginated)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-rapidapi-host", "value": "instagram-cheapest.p.rapidapi.com" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user_media?user_id=25025320",
+          "host": ["{{baseUrl}}"],
+          "path": ["user_media"],
+          "query": [
+            { "key": "user_id", "value": "25025320", "description": "Numeric Instagram user ID" },
+            { "key": "next_max_id", "value": "", "description": "Pagination cursor: pass next_max_id from the previous response; stop when more_available is false", "disabled": true },
+            { "key": "fields", "value": "", "description": "Optional: comma-separated fields to keep", "disabled": true }
+          ]
+        },
+        "description": "One page (~12 items). Response has top-level items, more_available, next_max_id."
+      }
+    },
+    {
+      "name": "user_reels — user's Reels (paginated)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-rapidapi-host", "value": "instagram-cheapest.p.rapidapi.com" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user_reels?user_id=25025320",
+          "host": ["{{baseUrl}}"],
+          "path": ["user_reels"],
+          "query": [
+            { "key": "user_id", "value": "25025320", "description": "Numeric Instagram user ID" },
+            { "key": "after", "value": "", "description": "Pagination cursor: pass page_info.end_cursor from the previous response", "disabled": true },
+            { "key": "fields", "value": "", "description": "Optional: comma-separated fields to keep", "disabled": true }
+          ]
+        }
+      }
+    },
+    {
+      "name": "user_tag_media — media the user is tagged in (paginated)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-rapidapi-host", "value": "instagram-cheapest.p.rapidapi.com" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user_tag_media?user_id=25025320",
+          "host": ["{{baseUrl}}"],
+          "path": ["user_tag_media"],
+          "query": [
+            { "key": "user_id", "value": "25025320", "description": "Numeric Instagram user ID" },
+            { "key": "after", "value": "", "description": "Pagination cursor: pass page_info.end_cursor from the previous response", "disabled": true },
+            { "key": "fields", "value": "", "description": "Optional: comma-separated fields to keep", "disabled": true }
+          ]
+        }
+      }
+    },
+    {
+      "name": "media_by_code2 — post/Reel by shortcode",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-rapidapi-host", "value": "instagram-cheapest.p.rapidapi.com" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/media_by_code2?code=C1AbCdEfGhI",
+          "host": ["{{baseUrl}}"],
+          "path": ["media_by_code2"],
+          "query": [
+            { "key": "code", "value": "C1AbCdEfGhI", "description": "Shortcode from instagram.com/p/{code}/ or /reel/{code}/" },
+            { "key": "fields", "value": "", "description": "Optional: comma-separated fields to keep", "disabled": true }
+          ]
+        },
+        "description": "Use this endpoint for media lookups — the legacy media_by_code is not supported."
+      }
+    },
+    {
+      "name": "media_comments — comments by shortcode (paginated)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-rapidapi-host", "value": "instagram-cheapest.p.rapidapi.com" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/media_comments?code=C1AbCdEfGhI",
+          "host": ["{{baseUrl}}"],
+          "path": ["media_comments"],
+          "query": [
+            { "key": "code", "value": "C1AbCdEfGhI", "description": "Shortcode from instagram.com/p/{code}/ or /reel/{code}/" },
+            { "key": "after", "value": "", "description": "Pagination cursor: pass page_info.end_cursor from the previous response", "disabled": true },
+            { "key": "fields", "value": "", "description": "Optional: comma-separated fields to keep", "disabled": true }
+          ]
+        }
+      }
+    },
+    {
+      "name": "reels_audio — Reels using an audio track (paginated)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-rapidapi-host", "value": "instagram-cheapest.p.rapidapi.com" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/reels_audio?audio_id=1234567890123456",
+          "host": ["{{baseUrl}}"],
+          "path": ["reels_audio"],
+          "query": [
+            { "key": "audio_id", "value": "1234567890123456", "description": "Numeric audio/music cluster ID from a Reels audio URL" },
+            { "key": "max_id", "value": "", "description": "Pagination cursor: pass the paging cursor (e.g. paging_info.max_id) from the previous response", "disabled": true },
+            { "key": "fields", "value": "", "description": "Optional: comma-separated fields to keep", "disabled": true }
+          ]
+        }
+      }
+    }
+  ]
+}
