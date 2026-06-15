@@ -45,4 +45,34 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://instagram.kolapihub.com/blog/what-to-build-with-instagram-api/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://instagram.kolapihub.com/blog/analyze-instagram-influencer-api/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://instagram.kolapihub.com/blog/detect-fake-instagram-followers-api/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://instagram.kolapihub.com/blog/instagram-competitor-analysis-api/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://instagram.kolapihub.com/blog/instagram-reels-trend-tracker/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://instagram.kolapihub.com/blog/instagram-comment-sentiment-analysis/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>

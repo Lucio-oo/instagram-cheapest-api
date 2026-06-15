@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Analyze an Instagram Influencer with an API (Engagement, Content, Comments) | Instagram Cheapest</title>
+    <meta name="description" content="Build an Instagram influencer analytics tool with an API: calculate engagement rate, find top-performing posts, track posting cadence, and analyze comment sentiment in Python.">
+    <meta name="keywords" content="instagram influencer analytics api, analyze instagram influencer, instagram engagement rate api, influencer marketing api, instagram audience analysis">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/analyze-instagram-influencer-api/">
+    <meta property="og:title" content="How to Analyze an Instagram Influencer with an API">
+    <meta property="og:description" content="Build an Instagram influencer analytics tool: engagement rate, top posts, posting cadence, and comment sentiment with real-time API data in Python.">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/analyze-instagram-influencer-api/">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://instagram.kolapihub.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Analyze an Instagram Influencer with an API">
+    <meta name="twitter:description" content="Build an Instagram influencer analytics tool: engagement rate, top posts, posting cadence, and comment sentiment with real-time API data in Python.">
+    <meta name="twitter:image" content="https://instagram.kolapihub.com/og.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "How to Analyze an Instagram Influencer with an API",
+      "description": "Build an Instagram influencer analytics tool with an API: calculate engagement rate, find top-performing posts, track posting cadence, and analyze comment sentiment in Python.",
+      "datePublished": "2026-06-15",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/analyze-instagram-influencer-api/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/">Blog</a>
+                <a href="/compare/">Compare</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free on RapidAPI</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>How to Analyze an Instagram Influencer with an API</h1>
+
+            <p>Whether you run an influencer marketing agency, vet creators for brand deals, or build a media-monitoring product, the same question comes up again and again: <em>is this account actually worth working with?</em> Follower count alone doesn't answer it. You need engagement rate, posting consistency, what content actually performs, and whether the comments under each post read like a real audience or a bot farm.</p>
+
+            <p>This guide shows how to assemble a complete influencer profile programmatically with the <strong>Instagram Cheapest API</strong> on RapidAPI. We'll combine four endpoints — profile, media, Reels, and comments — into a single analysis in Python. Everything runs on real-time, uncached public data at as little as $0.10 per 1,000 requests, so profiling a creator costs a fraction of a cent.</p>
+
+            <h2>The four signals that matter</h2>
+
+            <p>A useful influencer analysis blends four data sources, each backed by one endpoint:</p>
+
+            <ul>
+                <li><strong>Profile snapshot</strong> — follower count, following count, post count, bio, verified status (<code>user/{username}</code>)</li>
+                <li><strong>Recent posts</strong> — likes and comments per post, captions, post type, timestamps (<code>user_media</code>)</li>
+                <li><strong>Reels performance</strong> — video plays and engagement, since Reels often reach far beyond the follower base (<code>user_reels</code>)</li>
+                <li><strong>Comment quality</strong> — who is actually commenting, and what they say (<code>media_comments</code>)</li>
+            </ul>
+
+            <h2>Step 1: Resolve the profile</h2>
+
+            <p>Start with the username. The <code>user/{username}</code> endpoint is the only path-param endpoint in the API and returns the profile snapshot, including the numeric <code>user_id</code> you'll need for every other call.</p>
+
+            <pre><code>import requests
+
+API_HOST = "instagram-cheapest.p.rapidapi.com"
+BASE = f"https://{API_HOST}/api/v1/instagram"
+API_KEY = "YOUR_RAPIDAPI_KEY"
+HEADERS = {"x-rapidapi-host": API_HOST, "x-rapidapi-key": API_KEY}
+
+def get_profile(username):
+    r = requests.get(f"{BASE}/user/{username}", headers=HEADERS)
+    r.raise_for_status()
+    return r.json()
+
+profile = get_profile("nasa")
+print(profile)</code></pre>
+
+            <p>The response is raw Instagram JSON, so inspect it once to learn the exact field names (they aren't fixed by this API). You're looking for the user ID, follower count, and post count — the denominators for the metrics below.</p>
+
+            <h2>Step 2: Pull recent posts and compute engagement rate</h2>
+
+            <p>Engagement rate is the single most-cited influencer metric. The standard formula is:</p>
+
+            <pre><code>engagement_rate = (avg_likes + avg_comments) / followers * 100</code></pre>
+
+            <p>Fetch a page of recent posts with <code>user_media</code> (it returns ~12 items per page and echoes a top-level <code>next_max_id</code> for pagination), then average the engagement across them:</p>
+
+            <pre><code>def get_media(user_id, next_max_id=None):
+    params = {"user_id": user_id}
+    if next_max_id:
+        params["next_max_id"] = next_max_id
+    r = requests.get(f"{BASE}/user_media", headers=HEADERS, params=params)
+    r.raise_for_status()
+    return r.json()
+
+def engagement_rate(user_id, followers, pages=2):
+    likes, comments, posts = 0, 0, 0
+    next_max_id = None
+    for _ in range(pages):
+        data = get_media(user_id, next_max_id)
+        items = data.get("items", [])  # confirm the key from the raw JSON
+        for post in items:
+            likes += post.get("like_count", 0)
+            comments += post.get("comment_count", 0)
+            posts += 1
+        next_max_id = data.get("next_max_id")
+        if not data.get("more_available"):
+            break
+    if posts == 0 or followers == 0:
+        return None
+    return (likes / posts + comments / posts) / followers * 100
+
+# rate = engagement_rate(user_id, followers)
+# print(f"Engagement rate: {rate:.2f}%")</code></pre>
+
+            <p>As a rough industry benchmark, mega-accounts (1M+ followers) often sit around 1–2%, while smaller niche creators frequently exceed 3–5%. A huge follower count paired with a sub-0.5% engagement rate is the classic sign of an inflated audience — which we dig into in the <a href="/blog/detect-fake-instagram-followers-api/">fake-engagement detection guide</a>.</p>
+
+            <h2>Step 3: Find top-performing content and posting cadence</h2>
+
+            <p>Once you have the posts, two derived insights tell a brand what actually works for this creator: which posts overperform, and how consistently they post.</p>
+
+            <pre><code>from datetime import datetime
+
+def analyze_posts(items):
+    scored = []
+    for p in items:
+        eng = p.get("like_count", 0) + p.get("comment_count", 0)
+        scored.append({
+            "code": p.get("code"),
+            "engagement": eng,
+            "taken_at": p.get("taken_at"),  # unix timestamp in the raw JSON
+        })
+    # Top 3 posts by engagement
+    top = sorted(scored, key=lambda x: x["engagement"], reverse=True)[:3]
+
+    # Posting cadence: average days between posts
+    times = sorted(s["taken_at"] for s in scored if s["taken_at"])
+    gaps = [(b - a) / 86400 for a, b in zip(times, times[1:])]
+    cadence = sum(gaps) / len(gaps) if gaps else None
+    return top, cadence</code></pre>
+
+            <p>Top posts reveal the formats and themes that resonate (a brand wants its product in <em>those</em> formats). Cadence reveals reliability — a creator who posts every 10 days is a different partner than one who posts daily.</p>
+
+            <h2>Step 4: Add Reels, where the reach lives</h2>
+
+            <p>Reels routinely out-reach in-feed posts because Instagram pushes them to non-followers. Pull them with <code>user_reels</code> (it paginates with an <code>after</code> cursor taken from <code>page_info.end_cursor</code>) and compare play counts against the follower base:</p>
+
+            <pre><code>def get_reels(user_id, after=None):
+    params = {"user_id": user_id}
+    if after:
+        params["after"] = after
+    r = requests.get(f"{BASE}/user_reels", headers=HEADERS, params=params)
+    r.raise_for_status()
+    return r.json()
+
+# A reel with plays far above the follower count signals strong
+# algorithmic distribution — valuable for awareness campaigns.</code></pre>
+
+            <p>If you want to go further, <code>reels_audio?audio_id=</code> lets you find other Reels using the same audio track — useful for spotting whether a creator is riding a trending sound or starting one. See the <a href="/blog/instagram-reels-audio-api/">Reels &amp; audio tutorial</a> for that workflow.</p>
+
+            <h2>Step 5: Analyze comment quality and sentiment</h2>
+
+            <p>This is where genuine influence separates from vanity metrics. Fetch comments for the creator's top posts with <code>media_comments?code=</code> (the <code>code</code> is the post shortcode, and the endpoint paginates with an <code>after</code> cursor), then look at <em>who</em> comments and <em>what</em> they say.</p>
+
+            <pre><code>def get_comments(code, after=None):
+    params = {"code": code}
+    if after:
+        params["after"] = after
+    r = requests.get(f"{BASE}/media_comments", headers=HEADERS, params=params)
+    r.raise_for_status()
+    return r.json()
+
+comments = get_comments("ABC1234XYZ_")
+# Inspect the JSON for comment text and commenter usernames.</code></pre>
+
+            <p>Two cheap, high-signal checks you can run on the comment text:</p>
+
+            <ul>
+                <li><strong>Sentiment</strong> — run the text through a sentiment model (e.g. VADER from <code>nltk</code>, or any LLM) to score how the audience reacts to the creator and to sponsored posts specifically.</li>
+                <li><strong>Authenticity</strong> — a real audience writes varied, on-topic comments. A flood of single-emoji comments, generic "Nice! 🔥🔥" repeats, or "follow me back" spam is a red flag for purchased engagement.</li>
+            </ul>
+
+            <pre><code># Minimal sentiment pass with VADER (pip install nltk)
+from nltk.sentiment import SentimentIntensityAnalyzer
+sia = SentimentIntensityAnalyzer()
+
+texts = [c["text"] for c in comments.get("comments", []) if c.get("text")]
+scores = [sia.polarity_scores(t)["compound"] for t in texts]
+avg_sentiment = sum(scores) / len(scores) if scores else 0
+print(f"Average comment sentiment: {avg_sentiment:.2f}")  # -1 to +1</code></pre>
+
+            <h2>What you can build with this</h2>
+
+            <p>Stitch those four steps into one function and you have the core of several products:</p>
+
+            <ul>
+                <li><strong>Influencer discovery &amp; vetting dashboards</strong> — rank creators by real engagement, not followers.</li>
+                <li><strong>Brand-safety checks</strong> — scan recent captions and comment sentiment before a partnership goes live.</li>
+                <li><strong>Campaign reporting</strong> — snapshot a creator before and after a sponsored post to measure lift.</li>
+                <li><strong>Competitive intelligence</strong> — track which content formats win in a niche over time.</li>
+            </ul>
+
+            <p>For a wider list of products you can build on these endpoints, see <a href="/blog/what-to-build-with-instagram-api/">What can you build with an Instagram API?</a></p>
+
+            <h2>What does a full profile cost?</h2>
+
+            <p>A thorough analysis of one creator is roughly: 1 profile call + 2–3 media pages + 1–2 Reels pages + comments for the top 3 posts ≈ <strong>8–12 requests</strong>. At the per-request rates below, that's well under two cents per creator.</p>
+
+            <ul>
+                <li><strong>Free Basic tier:</strong> 30 requests/month — enough to profile 2–3 creators while you test</li>
+                <li><strong>Pro tier ($59/mo):</strong> 150,000 requests included, then $0.13 per 1,000</li>
+                <li><strong>Ultra tier ($119/mo):</strong> 900,000 requests included, then $0.11 per 1,000</li>
+                <li><strong>Mega tier ($249/mo):</strong> 3,000,000 requests included, then $0.10 per 1,000</li>
+            </ul>
+
+            <p>Profiling 10,000 creators a month (~100,000 requests) fits inside the Pro tier's included quota. Add the optional <code>fields</code> parameter to every call to trim the raw JSON and stay within the 10 GB/month bandwidth allowance.</p>
+
+            <h2>Compliance and responsible use</h2>
+
+            <p>This API returns <strong>public Instagram data only</strong>. Influencer analytics, audience research, and brand vetting are common use cases, but you remain responsible for complying with Instagram's terms of service and applicable privacy laws like GDPR and CCPA — especially when storing commenter usernames or building profiles of individuals. The API is not affiliated with or endorsed by Meta or Instagram.</p>
+
+            <h2>Conclusion</h2>
+
+            <p>Follower count is the least interesting number on an Instagram profile. By combining the <code>user/{username}</code>, <code>user_media</code>, <code>user_reels</code>, and <code>media_comments</code> endpoints, you can compute real engagement rate, surface top content, measure posting cadence, and read the room in the comments — the signals that actually predict whether a creator delivers. At $0.10–$0.13 per 1,000 requests, full creator profiles cost pennies, which makes data-driven influencer analysis practical even at agency scale.</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Get started on RapidAPI →</a></strong></p>
+
+            <blockquote>
+                <p><em>Compliance note: this API returns public Instagram data only. You are responsible for complying with Instagram's terms and applicable privacy law (GDPR/CCPA). Not affiliated with or endorsed by Meta/Instagram.</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>Start Building Today</h3>
+            <p>Get 30 free requests per month on the Basic plan. No commitment required.</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">Get Started on RapidAPI</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>Compliance:</strong> Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Not affiliated with or endorsed by Meta or Instagram.
+        </p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/blog/">Blog</a>
+            <a href="/compare/">Compare</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">API on RapidAPI</a>
+        </div>
+    </footer>
+</body>
+</html>

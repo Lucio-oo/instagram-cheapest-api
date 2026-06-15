@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Comment Sentiment Analysis with an API (Voice of Customer) | Instagram Cheapest</title>
+    <meta name="description" content="Run sentiment analysis on Instagram comments with an API. Pull comments by shortcode, score sentiment with Python, and build a voice-of-customer dashboard for any brand.">
+    <meta name="keywords" content="instagram comment sentiment analysis, instagram sentiment api, voice of customer instagram, analyze instagram comments, social listening api">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/instagram-comment-sentiment-analysis/">
+    <meta property="og:title" content="Instagram Comment Sentiment Analysis with an API (Voice of Customer)">
+    <meta property="og:description" content="Pull Instagram comments by shortcode, score sentiment in Python, and build a voice-of-customer dashboard for any brand — with a real-time API.">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/instagram-comment-sentiment-analysis/">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://instagram.kolapihub.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Instagram Comment Sentiment Analysis with an API (Voice of Customer)">
+    <meta name="twitter:description" content="Pull Instagram comments by shortcode, score sentiment in Python, and build a voice-of-customer dashboard for any brand — with a real-time API.">
+    <meta name="twitter:image" content="https://instagram.kolapihub.com/og.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Instagram Comment Sentiment Analysis with an API (Voice of Customer)",
+      "description": "Run sentiment analysis on Instagram comments with an API. Pull comments by shortcode, score sentiment with Python, and build a voice-of-customer dashboard for any brand.",
+      "datePublished": "2026-06-15",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/instagram-comment-sentiment-analysis/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/">Blog</a>
+                <a href="/compare/">Compare</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free on RapidAPI</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>Instagram Comment Sentiment Analysis with an API</h1>
+
+            <p>The comments under a brand's Instagram posts are unfiltered voice-of-customer data: what people love, what they complain about, which launches landed, and which fell flat. Read one post's comments by hand and you get anecdotes. Pull thousands programmatically and score them, and you get a trend line your marketing team can act on.</p>
+
+            <p>This guide shows how to build an Instagram comment sentiment pipeline with an Instagram API — the <strong>Instagram Cheapest API</strong> on RapidAPI. You'll fetch comments by post shortcode, score sentiment in Python, and aggregate the results into a voice-of-customer view. It runs on real-time, uncached public data at as little as $0.10 per 1,000 requests.</p>
+
+            <h2>The pipeline in four stages</h2>
+
+            <ol>
+                <li><strong>Collect</strong> — pull the brand's recent posts and their shortcodes (<code>user_media</code>).</li>
+                <li><strong>Fetch comments</strong> — get all comments for each post (<code>media_comments</code>).</li>
+                <li><strong>Score</strong> — run each comment through a sentiment model.</li>
+                <li><strong>Aggregate</strong> — roll sentiment up by post, by week, and by theme.</li>
+            </ol>
+
+            <h2>Step 1: Collect the posts to analyze</h2>
+
+            <p>Start from the brand's username, resolve it, and pull recent posts to get their shortcodes (the <code>code</code> field each comment call needs).</p>
+
+            <pre><code>import requests
+
+API_HOST = "instagram-cheapest.p.rapidapi.com"
+BASE = f"https://{API_HOST}/api/v1/instagram"
+API_KEY = "YOUR_RAPIDAPI_KEY"
+HEADERS = {"x-rapidapi-host": API_HOST, "x-rapidapi-key": API_KEY}
+
+def get_profile(username):
+    r = requests.get(f"{BASE}/user/{username}", headers=HEADERS)
+    r.raise_for_status()
+    return r.json()
+
+def get_media(user_id, next_max_id=None):
+    params = {"user_id": user_id}
+    if next_max_id:
+        params["next_max_id"] = next_max_id
+    r = requests.get(f"{BASE}/user_media", headers=HEADERS, params=params)
+    r.raise_for_status()
+    return r.json()
+
+profile = get_profile("some_brand")
+user_id = profile.get("user_id")            # confirm field from raw JSON
+posts = get_media(user_id).get("items", []) # confirm key from raw JSON
+codes = [p.get("code") for p in posts if p.get("code")]</code></pre>
+
+            <p>To analyze a longer history, paginate <code>user_media</code> with the <code>next_max_id</code> cursor (see the <a href="/blog/instagram-api-pagination/">pagination guide</a>).</p>
+
+            <h2>Step 2: Fetch all comments per post</h2>
+
+            <p>The <code>media_comments?code=</code> endpoint returns comments for a post or Reel and paginates with an <code>after</code> cursor taken from <code>page_info.end_cursor</code>. Loop until there are no more pages to capture the full thread.</p>
+
+            <pre><code>def get_comments_page(code, after=None):
+    params = {"code": code}
+    if after:
+        params["after"] = after
+    r = requests.get(f"{BASE}/media_comments", headers=HEADERS, params=params)
+    r.raise_for_status()
+    return r.json()
+
+def all_comments(code, max_pages=10):
+    texts, after = [], None
+    for _ in range(max_pages):
+        data = get_comments_page(code, after)
+        for c in data.get("comments", []):   # confirm key from raw JSON
+            if c.get("text"):
+                texts.append(c["text"])
+        page = data.get("page_info", {})
+        if not page.get("has_next_page"):
+            break
+        after = page.get("end_cursor")
+    return texts</code></pre>
+
+            <p>Capping <code>max_pages</code> keeps cost predictable on viral posts with tens of thousands of comments — for sentiment, a representative sample is usually enough.</p>
+
+            <h2>Step 3: Score sentiment</h2>
+
+            <p>For a fast, free baseline, use VADER (tuned for short social text). For nuance — sarcasm, mixed sentiment, aspect-level opinions — send batches to an LLM instead.</p>
+
+            <pre><code># Baseline: VADER (pip install nltk)
+from nltk.sentiment import SentimentIntensityAnalyzer
+sia = SentimentIntensityAnalyzer()
+
+def score(texts):
+    out = []
+    for t in texts:
+        s = sia.polarity_scores(t)["compound"]  # -1 (neg) .. +1 (pos)
+        label = "positive" if s > 0.05 else "negative" if s < -0.05 else "neutral"
+        out.append({"text": t, "score": s, "label": label})
+    return out
+
+scored = score(all_comments("ABC1234XYZ_"))
+positives = sum(1 for s in scored if s["label"] == "positive")
+print(f"{positives}/{len(scored)} comments positive")</code></pre>
+
+            <p>VADER handles emoji and slang reasonably well, but it doesn't understand context. For brand work where a false "positive" on a sarcastic complaint matters, an LLM pass over the same comments gives much better labels — and can also extract <em>themes</em> (shipping, price, quality) in the same call.</p>
+
+            <h2>Step 4: Aggregate into a voice-of-customer view</h2>
+
+            <p>Per-comment scores are noise until you roll them up. The aggregations that matter to a marketing team:</p>
+
+            <ul>
+                <li><strong>Sentiment over time</strong> — average sentiment per post, plotted by post date, reveals whether perception is trending up or down.</li>
+                <li><strong>Best and worst posts</strong> — which content drew the most positive (or negative) reaction.</li>
+                <li><strong>Theme breakdown</strong> — group comments by topic (extracted via keywords or an LLM) and score each theme separately, so you see <em>what</em> people are positive or negative about.</li>
+                <li><strong>Spike detection</strong> — a sudden jump in negative volume flags a PR issue or a botched launch early.</li>
+            </ul>
+
+            <pre><code>import statistics
+
+def post_summary(code):
+    scored = score(all_comments(code))
+    if not scored:
+        return None
+    return {
+        "code": code,
+        "n": len(scored),
+        "avg_sentiment": round(statistics.mean(s["score"] for s in scored), 3),
+        "pct_negative": round(
+            sum(1 for s in scored if s["label"] == "negative") / len(scored) * 100, 1),
+    }
+
+summaries = [post_summary(c) for c in codes]
+# Sort by pct_negative to surface posts that need attention.</code></pre>
+
+            <h2>What you can build with this</h2>
+
+            <ul>
+                <li><strong>Brand health dashboard</strong> — a live sentiment trend line for your own account.</li>
+                <li><strong>Competitive sentiment benchmarking</strong> — run the same pipeline on competitors and compare.</li>
+                <li><strong>Launch monitoring</strong> — track reaction to a product drop in the hours and days after it posts.</li>
+                <li><strong>Social listening / agency reporting</strong> — package sentiment summaries for clients.</li>
+            </ul>
+
+            <p>To screen which comments are genuine before scoring them, pair this with the <a href="/blog/detect-fake-instagram-followers-api/">fake-engagement detection</a> checks. The raw comment-fetching mechanics are covered in the <a href="/blog/instagram-comments-api/">comments API tutorial</a>.</p>
+
+            <h2>What does it cost?</h2>
+
+            <p>Analyzing one brand's last 30 posts with ~3 comment pages each ≈ 1 profile + 3 media pages + 30 × 3 ≈ <strong>~94 requests</strong> — about a penny. Monitoring 100 brands weekly is ~40,000 requests/month, comfortably inside the Pro tier.</p>
+
+            <ul>
+                <li><strong>Free Basic tier:</strong> 30 requests/month — enough to analyze a few posts while you build</li>
+                <li><strong>Pro tier ($59/mo):</strong> 150,000 requests included, then $0.13 per 1,000</li>
+                <li><strong>Ultra tier ($119/mo):</strong> 900,000 requests included, then $0.11 per 1,000</li>
+                <li><strong>Mega tier ($249/mo):</strong> 3,000,000 requests included, then $0.10 per 1,000</li>
+            </ul>
+
+            <p>Use the optional <code>fields</code> parameter to return just the comment text (and timestamp) you need — that trims the raw JSON and keeps you inside the 10 GB/month bandwidth allowance even on comment-heavy posts.</p>
+
+            <h2>Compliance and responsible use</h2>
+
+            <p>This API returns <strong>public Instagram data only</strong>. Sentiment analysis of public comments is a common research and marketing use, but you are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA) — especially if you store comment text alongside usernames. The API is not affiliated with or endorsed by Meta or Instagram.</p>
+
+            <h2>Conclusion</h2>
+
+            <p>Instagram comments are one of the richest, least-structured sources of customer opinion available — and they're public. With <code>user_media</code> to find posts and <code>media_comments</code> to pull the threads, you can build a sentiment pipeline that turns raw comments into a voice-of-customer trend line. At $0.10–$0.13 per 1,000 requests, monitoring sentiment across dozens of brands costs only a few dollars a month.</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Get started on RapidAPI →</a></strong></p>
+
+            <blockquote>
+                <p><em>Compliance note: this API returns public Instagram data only. You are responsible for complying with Instagram's terms and applicable privacy law (GDPR/CCPA). Not affiliated with or endorsed by Meta/Instagram.</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>Start Building Today</h3>
+            <p>Get 30 free requests per month on the Basic plan. No commitment required.</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">Get Started on RapidAPI</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>Compliance:</strong> Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Not affiliated with or endorsed by Meta or Instagram.
+        </p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/blog/">Blog</a>
+            <a href="/compare/">Compare</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">API on RapidAPI</a>
+        </div>
+    </footer>
+</body>
+</html>

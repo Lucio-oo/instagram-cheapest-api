@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Detect Fake Instagram Followers & Engagement with an API | Instagram Cheapest</title>
+    <meta name="description" content="Build a fake-follower and bot-engagement checker with an Instagram API. Score authenticity from engagement ratios, comment patterns, and like-to-follower gaps in Python.">
+    <meta name="keywords" content="detect fake instagram followers, fake engagement checker api, instagram bot detection, influencer fraud detection, instagram authenticity api">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/detect-fake-instagram-followers-api/">
+    <meta property="og:title" content="How to Detect Fake Instagram Followers & Engagement with an API">
+    <meta property="og:description" content="Build a fake-follower and bot-engagement checker with an Instagram API. Score authenticity from engagement ratios, comment patterns, and like-to-follower gaps.">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/detect-fake-instagram-followers-api/">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://instagram.kolapihub.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Detect Fake Instagram Followers & Engagement with an API">
+    <meta name="twitter:description" content="Build a fake-follower and bot-engagement checker with an Instagram API. Score authenticity from engagement ratios, comment patterns, and like-to-follower gaps.">
+    <meta name="twitter:image" content="https://instagram.kolapihub.com/og.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "How to Detect Fake Instagram Followers & Engagement with an API",
+      "description": "Build a fake-follower and bot-engagement checker with an Instagram API. Score authenticity from engagement ratios, comment patterns, and like-to-follower gaps in Python.",
+      "datePublished": "2026-06-15",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/detect-fake-instagram-followers-api/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/">Blog</a>
+                <a href="/compare/">Compare</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free on RapidAPI</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>How to Detect Fake Instagram Followers &amp; Engagement with an API</h1>
+
+            <p>Influencer fraud is expensive. A creator with 500,000 bought followers and a few thousand bot comments can look like a great partner on paper and deliver nothing. If you place brand deals, run an affiliate program, or build influencer-marketing software, you need to score authenticity programmatically — before money changes hands.</p>
+
+            <p>This guide shows how to build a fake-follower and bot-engagement checker with the <strong>Instagram Cheapest API</strong> on RapidAPI. You can't see who someone's followers <em>are</em> (that's private data), but you don't need to — fake audiences leave clear statistical fingerprints in <em>public</em> engagement data. We'll compute those signals in Python on real-time data at as little as $0.10 per 1,000 requests.</p>
+
+            <h2>The fingerprints of a fake audience</h2>
+
+            <p>Purchased followers and engagement distort the relationship between numbers that should move together. Four public signals expose the gap:</p>
+
+            <ul>
+                <li><strong>Engagement rate that's far too low</strong> — millions of followers, but only a few hundred likes per post.</li>
+                <li><strong>A skewed like-to-comment ratio</strong> — bought likes rarely come with matching comments, so the ratio looks unnatural.</li>
+                <li><strong>Generic, repetitive comments</strong> — single emojis, "Nice!", "follow back", and copy-paste spam instead of on-topic conversation.</li>
+                <li><strong>Erratic engagement across posts</strong> — real audiences are fairly consistent; bot bursts spike on some posts and vanish on others.</li>
+            </ul>
+
+            <p>All four come from three endpoints: <code>user/{username}</code> for the follower count, <code>user_media</code> for per-post likes and comments, and <code>media_comments</code> for the comment text.</p>
+
+            <h2>Step 1: Get the baseline numbers</h2>
+
+            <pre><code>import requests
+
+API_HOST = "instagram-cheapest.p.rapidapi.com"
+BASE = f"https://{API_HOST}/api/v1/instagram"
+API_KEY = "YOUR_RAPIDAPI_KEY"
+HEADERS = {"x-rapidapi-host": API_HOST, "x-rapidapi-key": API_KEY}
+
+def get_profile(username):
+    r = requests.get(f"{BASE}/user/{username}", headers=HEADERS)
+    r.raise_for_status()
+    return r.json()
+
+profile = get_profile("some_creator")
+# Pull follower count and user_id from the raw JSON (inspect field names once).</code></pre>
+
+            <h2>Step 2: Engagement-rate check</h2>
+
+            <p>Average the likes and comments across recent posts (<code>user_media</code> returns ~12 per page and echoes <code>next_max_id</code>), then compare to the follower count.</p>
+
+            <pre><code>def get_media(user_id, next_max_id=None):
+    params = {"user_id": user_id}
+    if next_max_id:
+        params["next_max_id"] = next_max_id
+    r = requests.get(f"{BASE}/user_media", headers=HEADERS, params=params)
+    r.raise_for_status()
+    return r.json()
+
+def collect_posts(user_id, pages=3):
+    posts, next_max_id = [], None
+    for _ in range(pages):
+        data = get_media(user_id, next_max_id)
+        posts.extend(data.get("items", []))  # confirm key from raw JSON
+        next_max_id = data.get("next_max_id")
+        if not data.get("more_available"):
+            break
+    return posts
+
+def engagement_rate(posts, followers):
+    if not posts or not followers:
+        return None
+    likes = sum(p.get("like_count", 0) for p in posts)
+    comments = sum(p.get("comment_count", 0) for p in posts)
+    n = len(posts)
+    return (likes / n + comments / n) / followers * 100</code></pre>
+
+            <p>Interpretation: legitimate engagement rates usually fall between ~1% and ~5% depending on account size (smaller accounts trend higher). A 1M-follower account posting at <strong>0.1–0.3%</strong> is a strong fraud signal — there simply aren't enough engaged humans behind the follower number.</p>
+
+            <h2>Step 3: Like-to-comment ratio &amp; consistency</h2>
+
+            <p>Genuine audiences comment at a fairly stable fraction of likes. A wildly high like-to-comment ratio (e.g. tens of thousands of likes but almost no comments) suggests purchased likes. High variance across posts suggests bursty bot activity.</p>
+
+            <pre><code>import statistics
+
+def ratio_and_variance(posts):
+    ratios, engagements = [], []
+    for p in posts:
+        likes = p.get("like_count", 0)
+        comments = p.get("comment_count", 0)
+        if comments > 0:
+            ratios.append(likes / comments)
+        engagements.append(likes + comments)
+    avg_ratio = statistics.mean(ratios) if ratios else None
+    # Coefficient of variation: stdev / mean — higher = more erratic
+    cv = (statistics.pstdev(engagements) / statistics.mean(engagements)
+          if engagements and statistics.mean(engagements) else None)
+    return avg_ratio, cv</code></pre>
+
+            <p>There's no universal cutoff — calibrate against accounts you trust in the same niche — but extreme outliers on either metric are worth flagging for manual review.</p>
+
+            <h2>Step 4: Comment authenticity</h2>
+
+            <p>The richest signal is the comment text itself. Pull comments from a few of the creator's recent posts with <code>media_comments?code=</code> and look for bot patterns.</p>
+
+            <pre><code>def get_comments(code, after=None):
+    params = {"code": code}
+    if after:
+        params["after"] = after
+    r = requests.get(f"{BASE}/media_comments", headers=HEADERS, params=params)
+    r.raise_for_status()
+    return r.json()
+
+SPAM_PHRASES = {"follow me", "follow back", "check my page", "dm me", "promo"}
+
+def comment_authenticity(comments):
+    texts = [c.get("text", "") for c in comments.get("comments", [])]
+    if not texts:
+        return None
+    total = len(texts)
+    emoji_only = sum(1 for t in texts if t and not any(ch.isalnum() for ch in t))
+    spammy = sum(1 for t in texts if any(p in t.lower() for p in SPAM_PHRASES))
+    # Repetition: how many comments are duplicates of another
+    duplicates = total - len(set(t.strip().lower() for t in texts))
+    return {
+        "emoji_only_pct": emoji_only / total * 100,
+        "spam_pct": spammy / total * 100,
+        "duplicate_pct": duplicates / total * 100,
+    }</code></pre>
+
+            <p>A healthy post has varied, on-topic comments. When a large share are emoji-only, duplicated, or full of "follow back" spam, the engagement is likely inorganic — even if the raw comment <em>count</em> looks impressive.</p>
+
+            <h2>Step 5: Combine into one authenticity score</h2>
+
+            <pre><code>def authenticity_report(username):
+    profile = get_profile(username)
+    user_id = profile.get("user_id")        # confirm field name
+    followers = profile.get("follower_count")  # confirm field name
+
+    posts = collect_posts(user_id, pages=3)
+    er = engagement_rate(posts, followers)
+    avg_ratio, cv = ratio_and_variance(posts)
+
+    # Sample comments from the 3 most recent posts that have a shortcode
+    codes = [p.get("code") for p in posts[:3] if p.get("code")]
+    comment_stats = [comment_authenticity(get_comments(c)) for c in codes]
+
+    return {
+        "followers": followers,
+        "engagement_rate_pct": er,
+        "like_to_comment_ratio": avg_ratio,
+        "engagement_cv": cv,
+        "comment_signals": comment_stats,
+    }
+
+# print(authenticity_report("some_creator"))</code></pre>
+
+            <p>Turn the raw signals into a 0–100 score with weights that fit your risk tolerance, or simply flag accounts that trip two or more red lines for a human to review. Either way, you've replaced "they have a lot of followers" with evidence.</p>
+
+            <h2>What does a check cost?</h2>
+
+            <p>One authenticity check is roughly 1 profile call + 3 media pages + comments for 3 posts ≈ <strong>7 requests</strong> — well under a cent.</p>
+
+            <ul>
+                <li><strong>Free Basic tier:</strong> 30 requests/month — a few checks while you build</li>
+                <li><strong>Pro tier ($59/mo):</strong> 150,000 requests included, then $0.13 per 1,000</li>
+                <li><strong>Ultra tier ($119/mo):</strong> 900,000 requests included, then $0.11 per 1,000</li>
+                <li><strong>Mega tier ($249/mo):</strong> 3,000,000 requests included, then $0.10 per 1,000</li>
+            </ul>
+
+            <p>Screening 20,000 creators a month (~140,000 requests) fits inside the Pro tier. Add the <code>fields</code> parameter to each call to keep payloads — and bandwidth — small.</p>
+
+            <h2>A note on what's possible</h2>
+
+            <p>These methods detect <em>statistical</em> fraud from public engagement; they can't inspect the follower list directly (that's private). Treat the output as a strong screening signal, not a verdict — calibrate thresholds per niche and keep a human in the loop for borderline cases. For the positive side of the same data — measuring genuine influence — see <a href="/blog/analyze-instagram-influencer-api/">How to analyze an Instagram influencer with an API</a>.</p>
+
+            <h2>Compliance and responsible use</h2>
+
+            <p>This API returns <strong>public Instagram data only</strong>. Fraud screening for your own partnerships is a legitimate use, but you are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA), especially when storing commenter data or making decisions about individuals. The API is not affiliated with or endorsed by Meta or Instagram.</p>
+
+            <h2>Conclusion</h2>
+
+            <p>Fake audiences can't hide from math. By comparing follower counts against real engagement (<code>user/{username}</code> + <code>user_media</code>) and inspecting comment quality (<code>media_comments</code>), you can flag inflated accounts before a brand deal — programmatically, at scale, and for pennies per check. At $0.10–$0.13 per 1,000 requests, building authenticity screening into your workflow costs almost nothing compared to the money it saves.</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Get started on RapidAPI →</a></strong></p>
+
+            <blockquote>
+                <p><em>Compliance note: this API returns public Instagram data only. You are responsible for complying with Instagram's terms and applicable privacy law (GDPR/CCPA). Not affiliated with or endorsed by Meta/Instagram.</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>Start Building Today</h3>
+            <p>Get 30 free requests per month on the Basic plan. No commitment required.</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">Get Started on RapidAPI</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>Compliance:</strong> Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Not affiliated with or endorsed by Meta or Instagram.
+        </p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/blog/">Blog</a>
+            <a href="/compare/">Compare</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">API on RapidAPI</a>
+        </div>
+    </footer>
+</body>
+</html>

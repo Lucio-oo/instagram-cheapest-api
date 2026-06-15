@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Build an Instagram Competitor Monitoring Dashboard with an API | Instagram Cheapest</title>
+    <meta name="description" content="Track competitor Instagram accounts with an API: monitor posts, Reels, and tagged media on a schedule, store engagement over time, and get alerts when content goes viral.">
+    <meta name="keywords" content="instagram competitor analysis api, instagram competitor monitoring, track instagram accounts api, social media monitoring api, instagram benchmarking">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/instagram-competitor-analysis-api/">
+    <meta property="og:title" content="How to Build an Instagram Competitor Monitoring Dashboard with an API">
+    <meta property="og:description" content="Track competitor Instagram accounts: monitor posts, Reels, and tagged media on a schedule, store engagement over time, and alert when content goes viral.">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/instagram-competitor-analysis-api/">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://instagram.kolapihub.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Build an Instagram Competitor Monitoring Dashboard with an API">
+    <meta name="twitter:description" content="Track competitor Instagram accounts: monitor posts, Reels, and tagged media on a schedule, store engagement over time, and alert when content goes viral.">
+    <meta name="twitter:image" content="https://instagram.kolapihub.com/og.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "How to Build an Instagram Competitor Monitoring Dashboard with an API",
+      "description": "Track competitor Instagram accounts with an API: monitor posts, Reels, and tagged media on a schedule, store engagement over time, and get alerts when content goes viral.",
+      "datePublished": "2026-06-15",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/instagram-competitor-analysis-api/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/">Blog</a>
+                <a href="/compare/">Compare</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free on RapidAPI</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>How to Build an Instagram Competitor Monitoring Dashboard with an API</h1>
+
+            <p>Knowing what your competitors post — and which of those posts actually land — is one of the highest-leverage inputs a social or marketing team has. Doing it by hand means opening a dozen profiles every morning and eyeballing like counts. A monitoring dashboard does it automatically: it snapshots each competitor on a schedule, records engagement over time, and flags the posts that break out.</p>
+
+            <p>This guide shows how to build the data layer for that dashboard with an Instagram API — the <strong>Instagram Cheapest API</strong> on RapidAPI. You'll poll a watchlist of accounts, store engagement history, compute share-of-voice, and detect viral posts — all on real-time, uncached public data at as little as $0.10 per 1,000 requests.</p>
+
+            <h2>The architecture in one paragraph</h2>
+
+            <p>A competitor monitor is a scheduled job, not a live API. It runs (say) once a day, pulls each competitor's latest posts and Reels, writes a row per post into a database, and compares against yesterday's snapshot. The dashboard reads from your database, never from Instagram directly — so the UI is instant even though each fetch takes a few seconds. Because the data is real-time and uncached, every snapshot reflects the true current state.</p>
+
+            <h2>Step 1: Resolve your watchlist to user IDs</h2>
+
+            <p>Store competitors as usernames, but most endpoints key off the numeric <code>user_id</code>. Resolve each once with <code>user/{username}</code> and cache the ID (it doesn't change).</p>
+
+            <pre><code>import requests
+
+API_HOST = "instagram-cheapest.p.rapidapi.com"
+BASE = f"https://{API_HOST}/api/v1/instagram"
+API_KEY = "YOUR_RAPIDAPI_KEY"
+HEADERS = {"x-rapidapi-host": API_HOST, "x-rapidapi-key": API_KEY}
+
+def resolve(username):
+    r = requests.get(f"{BASE}/user/{username}", headers=HEADERS)
+    r.raise_for_status()
+    p = r.json()
+    return {
+        "username": username,
+        "user_id": p.get("user_id"),          # confirm field from raw JSON
+        "followers": p.get("follower_count"), # confirm field from raw JSON
+    }
+
+WATCHLIST = ["competitor_a", "competitor_b", "competitor_c"]
+profiles = [resolve(u) for u in WATCHLIST]</code></pre>
+
+            <p>Re-running <code>user/{username}</code> on each cycle also gives you a follower-count time series — useful for spotting growth spurts or follower drops.</p>
+
+            <h2>Step 2: Snapshot posts and Reels each cycle</h2>
+
+            <p>For every competitor, pull the most recent page of <code>user_media</code> and <code>user_reels</code>. You usually don't need full history every run — just the latest page is enough to catch new posts and update engagement on recent ones.</p>
+
+            <pre><code>def latest_media(user_id):
+    r = requests.get(f"{BASE}/user_media", headers=HEADERS,
+                     params={"user_id": user_id})
+    r.raise_for_status()
+    return r.json().get("items", [])  # confirm key from raw JSON
+
+def latest_reels(user_id):
+    r = requests.get(f"{BASE}/user_reels", headers=HEADERS,
+                     params={"user_id": user_id})
+    r.raise_for_status()
+    return r.json()
+
+def snapshot(profile):
+    posts = latest_media(profile["user_id"])
+    rows = []
+    for p in posts:
+        rows.append({
+            "username": profile["username"],
+            "code": p.get("code"),
+            "likes": p.get("like_count", 0),
+            "comments": p.get("comment_count", 0),
+            "taken_at": p.get("taken_at"),
+        })
+    return rows</code></pre>
+
+            <p>Write each row to your database keyed on <code>(code, snapshot_date)</code>. Storing the same post across multiple days is what lets you watch engagement accumulate and compute velocity.</p>
+
+            <p>If you need a competitor's full back catalogue (for a one-time baseline), paginate with the <code>next_max_id</code> cursor for posts and the <code>after</code> cursor for Reels — the full looping pattern is in the <a href="/blog/instagram-api-pagination/">pagination guide</a>.</p>
+
+            <h2>Step 3: Detect viral posts with engagement velocity</h2>
+
+            <p>A "viral" post isn't just one with high total engagement — it's one engaging <em>fast</em> relative to the account's norm. Compare a post's engagement to the competitor's recent average:</p>
+
+            <pre><code>def viral_flags(rows, threshold=3.0):
+    by_user = {}
+    for r in rows:
+        by_user.setdefault(r["username"], []).append(r)
+    alerts = []
+    for username, posts in by_user.items():
+        engagements = [p["likes"] + p["comments"] for p in posts]
+        if not engagements:
+            continue
+        avg = sum(engagements) / len(engagements)
+        for p in posts:
+            eng = p["likes"] + p["comments"]
+            if avg and eng > avg * threshold:
+                alerts.append({"username": username, "code": p["code"],
+                               "engagement": eng, "x_avg": round(eng / avg, 1)})
+    return alerts
+
+# alerts = viral_flags(all_rows)  # e.g. "competitor_a post is 4.2x their average"</code></pre>
+
+            <p>Wire these alerts to Slack or email and your team learns about a competitor's breakout post the same day it happens — not a week later.</p>
+
+            <h2>Step 4: Track user-generated content and collaborations</h2>
+
+            <p>The <code>user_tag_media</code> endpoint returns posts a competitor is <em>tagged in</em> — a window into their UGC, ambassador activity, and brand collaborations. Poll it to see who's promoting them and how often.</p>
+
+            <pre><code>def tagged_media(user_id, after=None):
+    params = {"user_id": user_id}
+    if after:
+        params["after"] = after
+    r = requests.get(f"{BASE}/user_tag_media", headers=HEADERS, params=params)
+    r.raise_for_status()
+    return r.json()  # paginates with the `after` cursor (page_info.end_cursor)</code></pre>
+
+            <p>A spike in tagged posts often signals a paid campaign or influencer push — exactly the kind of competitive move worth knowing about early.</p>
+
+            <h2>Step 5: Compute share-of-voice and benchmarks</h2>
+
+            <p>With snapshots flowing into your database, the dashboard metrics fall out of simple aggregation:</p>
+
+            <ul>
+                <li><strong>Posting frequency</strong> — new posts per competitor per week</li>
+                <li><strong>Average engagement rate</strong> — engagement ÷ followers, comparable across accounts of different sizes</li>
+                <li><strong>Share-of-voice</strong> — each competitor's total engagement as a percentage of the tracked set</li>
+                <li><strong>Format mix</strong> — Reels vs in-feed posts, and which performs better for each account</li>
+                <li><strong>Top content</strong> — the highest-velocity posts across the whole watchlist this week</li>
+            </ul>
+
+            <p>To go deeper on any single account — comment sentiment, audience authenticity — combine this with the <a href="/blog/analyze-instagram-influencer-api/">influencer analysis</a> and <a href="/blog/detect-fake-instagram-followers-api/">fake-engagement detection</a> workflows.</p>
+
+            <h2>What does monitoring cost?</h2>
+
+            <p>Per competitor per daily cycle you need roughly: 1 profile + 1 media page + 1 Reels page (+ optionally 1 tagged-media page) ≈ <strong>3–4 requests</strong>. Tracking 50 competitors daily is ~50 × 4 × 30 = <strong>6,000 requests/month</strong> — comfortably inside the Pro tier's included quota.</p>
+
+            <ul>
+                <li><strong>Free Basic tier:</strong> 30 requests/month — enough to monitor a couple of accounts while you build</li>
+                <li><strong>Pro tier ($59/mo):</strong> 150,000 requests included, then $0.13 per 1,000</li>
+                <li><strong>Ultra tier ($119/mo):</strong> 900,000 requests included, then $0.11 per 1,000</li>
+                <li><strong>Mega tier ($249/mo):</strong> 3,000,000 requests included, then $0.10 per 1,000</li>
+            </ul>
+
+            <p>Use the optional <code>fields</code> parameter on every call to trim the raw JSON to just the metrics you store — that keeps you inside the 10 GB/month bandwidth allowance even with a large watchlist.</p>
+
+            <h2>Compliance and responsible use</h2>
+
+            <p>This API returns <strong>public Instagram data only</strong>. Competitive benchmarking from public profiles is a standard business use, but you remain responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). The API is not affiliated with or endorsed by Meta or Instagram.</p>
+
+            <h2>Conclusion</h2>
+
+            <p>A competitor monitoring dashboard is fundamentally a scheduled snapshot job plus a database. With <code>user/{username}</code>, <code>user_media</code>, <code>user_reels</code>, and <code>user_tag_media</code>, you can track posting cadence, engagement trends, collaborations, and viral breakouts across an entire watchlist — and at $0.10–$0.13 per 1,000 requests, monitoring dozens of competitors daily costs just a few dollars a month.</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Get started on RapidAPI →</a></strong></p>
+
+            <blockquote>
+                <p><em>Compliance note: this API returns public Instagram data only. You are responsible for complying with Instagram's terms and applicable privacy law (GDPR/CCPA). Not affiliated with or endorsed by Meta/Instagram.</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>Start Building Today</h3>
+            <p>Get 30 free requests per month on the Basic plan. No commitment required.</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">Get Started on RapidAPI</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>Compliance:</strong> Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Not affiliated with or endorsed by Meta or Instagram.
+        </p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/blog/">Blog</a>
+            <a href="/compare/">Compare</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">API on RapidAPI</a>
+        </div>
+    </footer>
+</body>
+</html>
