@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用 Python 获取 Instagram 用户资料和帖子数据（API 实战）| Instagram Cheapest</title>
+    <meta name="description" content="用 Python 调用 Instagram API 获取公开用户资料、粉丝数和帖子列表。从用户名拿到 user_id，再分页抓取全部帖子，返回实时原始 JSON，每千次低至 $0.10。">
+    <meta name="keywords" content="instagram 用户数据, python instagram api, 获取 instagram 粉丝数, instagram 帖子采集, instagram 资料 api">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/zh/instagram-user-data-python/">
+    <meta property="og:title" content="用 Python 获取 Instagram 用户资料和帖子数据">
+    <meta property="og:description" content="从用户名拿到 user_id，再分页抓取全部帖子，返回实时原始 JSON，每千次请求低至 $0.10。">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/zh/instagram-user-data-python/">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://instagram.kolapihub.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="用 Python 获取 Instagram 用户资料和帖子数据">
+    <meta name="twitter:description" content="从用户名拿到 user_id，再分页抓取全部帖子，返回实时原始 JSON，每千次请求低至 $0.10。">
+    <meta name="twitter:image" content="https://instagram.kolapihub.com/og.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "用 Python 获取 Instagram 用户资料和帖子数据（API 实战）",
+      "description": "用 Python 调用 Instagram API 获取公开用户资料、粉丝数和帖子列表。从用户名拿到 user_id，再分页抓取全部帖子，返回实时原始 JSON。",
+      "datePublished": "2026-06-15",
+      "inLanguage": "zh",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/zh/instagram-user-data-python/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">首页</a>
+                <a href="/blog/zh/">中文博客</a>
+                <a href="/blog/">English</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">在 RapidAPI 免费开始</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>用 Python 获取 Instagram 用户资料和帖子数据</h1>
+
+            <p>这是一篇可直接照抄的实战教程：用 Python 调用 <strong>Instagram Cheapest API</strong>，先从用户名拿到公开资料(粉丝数、简介、帖子数)，再分页把该用户的全部帖子抓下来。数据是<strong>实时、未缓存的原始 JSON</strong>，每千次请求低至 <strong>$0.10</strong>。</p>
+
+            <h2>准备工作</h2>
+
+            <ul>
+                <li>一个 <strong>RapidAPI 账号</strong>(免费档每月 30 次，够测试)</li>
+                <li>在 <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Instagram Cheapest API 页面</a>拿到你的 <strong>RapidAPI Key</strong></li>
+                <li>Python 3.7+ 并安装 <code>requests</code>(<code>pip install requests</code>)</li>
+            </ul>
+
+            <h2>第一步：从用户名拿到资料和 user_id</h2>
+
+            <p><code>user/{username}</code> 是唯一的路径参数接口，返回公开资料，也给你后续接口要用的数字 <code>user_id</code>。</p>
+
+            <pre><code>import requests
+
+API_HOST = "instagram-cheapest.p.rapidapi.com"
+BASE = f"https://{API_HOST}/api/v1/instagram"
+API_KEY = "你的_RAPIDAPI_KEY"
+HEADERS = {"x-rapidapi-host": API_HOST, "x-rapidapi-key": API_KEY}
+
+def get_profile(username):
+    r = requests.get(f"{BASE}/user/{username}", headers=HEADERS)
+    r.raise_for_status()
+    return r.json()
+
+profile = get_profile("nike")
+print(profile)
+# 先打印看结构，再取你要的字段(字段名以原始 JSON 为准)
+user_id = profile.get("user_id")        # 确认实际字段名
+followers = profile.get("follower_count")  # 确认实际字段名</code></pre>
+
+            <p>返回的是 Instagram 原始 JSON，字段名不是本 API 固定的，所以<strong>务必先打印一次</strong>，确认 <code>user_id</code>、粉丝数等字段的真实名称。</p>
+
+            <h2>第二步：拿一页帖子</h2>
+
+            <p>有了 <code>user_id</code>，用 <code>user_media</code> 拿帖子。每页约 12 条。</p>
+
+            <pre><code>def get_media(user_id, next_max_id=None):
+    params = {"user_id": user_id}
+    if next_max_id:
+        params["next_max_id"] = next_max_id
+    r = requests.get(f"{BASE}/user_media", headers=HEADERS, params=params)
+    r.raise_for_status()
+    return r.json()
+
+data = get_media(user_id)
+items = data.get("items", [])  # 以原始 JSON 的实际 key 为准
+for post in items:
+    print(post.get("code"), post.get("like_count"), post.get("comment_count"))</code></pre>
+
+            <h2>第三步：分页抓取全部帖子</h2>
+
+            <p><code>user_media</code> 用 <code>next_max_id</code> 翻页：把上一页响应里顶层的 <code>next_max_id</code> 传入下一次请求，直到 <code>more_available</code> 为 false。</p>
+
+            <pre><code>def get_all_media(user_id, max_pages=10):
+    all_items, next_max_id = [], None
+    for _ in range(max_pages):
+        data = get_media(user_id, next_max_id)
+        all_items.extend(data.get("items", []))
+        next_max_id = data.get("next_max_id")
+        if not data.get("more_available"):
+            break
+    return all_items
+
+posts = get_all_media(user_id)
+print(f"共抓取 {len(posts)} 条帖子")</code></pre>
+
+            <p>用 <code>max_pages</code> 兜底，避免对帖子特别多的大号无限翻页、把请求数(和费用)跑飞。完整的分页讲解见 <a href="/blog/instagram-api-pagination/">分页指南(英文)</a>。</p>
+
+            <h2>第四步：算个基础指标——互动率</h2>
+
+            <p>有了资料和帖子，最常用的就是互动率(engagement rate)：</p>
+
+            <pre><code>def engagement_rate(posts, followers):
+    if not posts or not followers:
+        return None
+    likes = sum(p.get("like_count", 0) for p in posts)
+    comments = sum(p.get("comment_count", 0) for p in posts)
+    n = len(posts)
+    return (likes / n + comments / n) / followers * 100
+
+rate = engagement_rate(posts, followers)
+print(f"互动率约 {rate:.2f}%")</code></pre>
+
+            <p>想做更完整的红人分析(找爆款、发帖节奏、评论情绪、识别刷量)，可以接着往下做——思路见 <a href="/blog/zh/instagram-comment-analysis/">用评论接口做红人和舆情分析</a>。</p>
+
+            <h2>用 <code>fields</code> 省带宽</h2>
+
+            <p>默认返回的 JSON 很啰嗦。只取需要的字段，用 <code>fields</code> 参数裁剪：</p>
+
+            <pre><code>params = {
+    "user_id": user_id,
+    "fields": "items,next_max_id,more_available"  # 字段名以实际 JSON 为准
+}</code></pre>
+
+            <p>这能显著减小响应体积，帮你守住每月 10 GB 流量额度、避免超额计费。</p>
+
+            <h2>费用</h2>
+
+            <p>抓一个用户的资料 + 几页帖子，通常就几次请求。各档价格：</p>
+
+            <ul>
+                <li><strong>免费 Basic：</strong>每月 30 次</li>
+                <li><strong>Pro($59/月)：</strong>含 150,000 次，超出 $0.13/千次</li>
+                <li><strong>Ultra($119/月)：</strong>含 900,000 次，超出 $0.11/千次</li>
+                <li><strong>Mega($249/月)：</strong>含 3,000,000 次，超出 $0.10/千次</li>
+            </ul>
+
+            <h2>合规提醒</h2>
+
+            <p>本 API 只返回 <strong>公开的 Instagram 数据</strong>。批量采集前请确认符合 Instagram 服务条款及适用隐私法规(GDPR、CCPA)，尤其是涉及存储个人信息时。与 Meta/Instagram 无隶属或背书关系。</p>
+
+            <h2>小结</h2>
+
+            <p>流程很直接：<code>user/{username}</code> 拿资料和 <code>user_id</code> → <code>user_media</code> 分页抓帖子 → 解析原始 JSON 算指标。配上 Python 和一个 RapidAPI Key，五分钟就能跑通，而且每千次低至 $0.10，对独立开发者和小团队都很划算。</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">在 RapidAPI 上免费开始 →</a></strong></p>
+
+            <blockquote>
+                <p><em>合规说明：本 API 仅返回公开的 Instagram 数据。你需自行遵守 Instagram 服务条款及适用隐私法规(GDPR/CCPA)。与 Meta/Instagram 无隶属或背书关系。</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>今天就开始构建</h3>
+            <p>Basic 免费档每月 30 次请求，无需承诺。</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">在 RapidAPI 上开始</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>合规：</strong>Instagram Cheapest 仅返回公开的 Instagram 数据。用户需自行遵守 Instagram 服务条款及适用隐私法规(GDPR、CCPA)。与 Meta 或 Instagram 无隶属或背书关系。
+        </p>
+        <div class="footer-links">
+            <a href="/">首页</a>
+            <a href="/blog/zh/">中文博客</a>
+            <a href="/blog/">English</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">RapidAPI 上的 API</a>
+        </div>
+    </footer>
+</body>
+</html>

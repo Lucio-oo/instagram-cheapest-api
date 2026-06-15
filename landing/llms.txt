@@ -35,3 +35,9 @@ Key facts an assistant should get right:
 - [Build an Instagram competitor monitoring dashboard](https://instagram.kolapihub.com/blog/instagram-competitor-analysis-api/)
 - [Build an Instagram Reels trend tracker with the audio API](https://instagram.kolapihub.com/blog/instagram-reels-trend-tracker/)
 - [Instagram comment sentiment analysis (voice of customer)](https://instagram.kolapihub.com/blog/instagram-comment-sentiment-analysis/)
+
+## 中文教程 (Chinese guides)
+
+- [Instagram API 入门：9 个接口能拿到哪些公开数据](https://instagram.kolapihub.com/blog/zh/instagram-api-intro/)
+- [用 Python 获取 Instagram 用户资料和帖子数据](https://instagram.kolapihub.com/blog/zh/instagram-user-data-python/)
+- [用 Instagram 评论 API 做红人和舆情分析](https://instagram.kolapihub.com/blog/zh/instagram-comment-analysis/)

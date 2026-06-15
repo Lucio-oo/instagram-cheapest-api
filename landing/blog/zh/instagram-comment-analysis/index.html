@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用 Instagram 评论 API 做红人和舆情分析（Python 实战）| Instagram Cheapest</title>
+    <meta name="description" content="用 Instagram 评论 API 抓取帖子评论，做情绪分析、识别刷量、评估红人真实影响力。Python 实战，返回实时原始 JSON，每千次请求低至 $0.10。">
+    <meta name="keywords" content="instagram 评论 api, instagram 舆情分析, 红人分析, instagram 情绪分析, 识别刷量, instagram 数据分析">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/zh/instagram-comment-analysis/">
+    <meta property="og:title" content="用 Instagram 评论 API 做红人和舆情分析">
+    <meta property="og:description" content="抓取帖子评论做情绪分析、识别刷量、评估红人真实影响力。Python 实战，返回实时原始 JSON，每千次请求低至 $0.10。">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/zh/instagram-comment-analysis/">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://instagram.kolapihub.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="用 Instagram 评论 API 做红人和舆情分析">
+    <meta name="twitter:description" content="抓取帖子评论做情绪分析、识别刷量、评估红人真实影响力。Python 实战，每千次请求低至 $0.10。">
+    <meta name="twitter:image" content="https://instagram.kolapihub.com/og.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "用 Instagram 评论 API 做红人和舆情分析（Python 实战）",
+      "description": "用 Instagram 评论 API 抓取帖子评论，做情绪分析、识别刷量、评估红人真实影响力。Python 实战，返回实时原始 JSON。",
+      "datePublished": "2026-06-15",
+      "inLanguage": "zh",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/zh/instagram-comment-analysis/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">首页</a>
+                <a href="/blog/zh/">中文博客</a>
+                <a href="/blog/">English</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">在 RapidAPI 免费开始</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>用 Instagram 评论 API 做红人和舆情分析</h1>
+
+            <p>帖子下面的评论是最真实的"用户原声"：粉丝喜欢什么、吐槽什么、对一次合作/上新的反应如何，全在里面。人工看只能看到零星案例；用程序把成千上万条评论抓下来打分，你得到的是一条能驱动决策的趋势线。本文用 <strong>Instagram Cheapest API</strong> 的评论接口，带你做红人评估和舆情分析。数据实时、未缓存，每千次请求低至 <strong>$0.10</strong>。</p>
+
+            <h2>整体流程</h2>
+
+            <ol>
+                <li>拿到目标账号的帖子和短码(<code>user_media</code>)</li>
+                <li>按短码抓每条帖子的评论(<code>media_comments</code>)</li>
+                <li>对评论做情绪打分</li>
+                <li>聚合成可看的指标:按帖子、按时间、按主题</li>
+            </ol>
+
+            <h2>第一步：拿到帖子的短码</h2>
+
+            <p>评论接口按帖子<strong>短码(code)</strong>取数据。先用 <code>user/{username}</code> 拿到 <code>user_id</code>，再用 <code>user_media</code> 拿帖子列表和它们的 <code>code</code>。</p>
+
+            <pre><code>import requests
+
+API_HOST = "instagram-cheapest.p.rapidapi.com"
+BASE = f"https://{API_HOST}/api/v1/instagram"
+API_KEY = "你的_RAPIDAPI_KEY"
+HEADERS = {"x-rapidapi-host": API_HOST, "x-rapidapi-key": API_KEY}
+
+def get_json(path, params=None):
+    r = requests.get(f"{BASE}/{path}", headers=HEADERS, params=params or {})
+    r.raise_for_status()
+    return r.json()
+
+profile = get_json("user/some_brand")
+user_id = profile.get("user_id")           # 以原始 JSON 为准
+posts = get_json("user_media", {"user_id": user_id}).get("items", [])
+codes = [p.get("code") for p in posts if p.get("code")]</code></pre>
+
+            <h2>第二步：分页抓取评论</h2>
+
+            <p><code>media_comments?code=</code> 返回某条帖子的评论，用 <code>after</code> 游标翻页(游标取响应里的 <code>page_info.end_cursor</code>)。</p>
+
+            <pre><code>def all_comments(code, max_pages=10):
+    texts, after = [], None
+    for _ in range(max_pages):
+        params = {"code": code}
+        if after:
+            params["after"] = after
+        data = get_json("media_comments", params)
+        for c in data.get("comments", []):   # 以原始 JSON 为准
+            if c.get("text"):
+                texts.append(c["text"])
+        page = data.get("page_info", {})
+        if not page.get("has_next_page"):
+            break
+        after = page.get("end_cursor")
+    return texts</code></pre>
+
+            <p>用 <code>max_pages</code> 兜底——爆款帖子可能有几万条评论，做情绪分析通常取有代表性的样本就够，不必全量,既省请求又省钱。</p>
+
+            <h2>第三步：情绪打分</h2>
+
+            <p>英文评论可以用 VADER(对短社媒文本友好);如果评论里中文多、或者要识别反讽、混合情绪，建议把评论批量丢给大模型(LLM)打分,顺便还能抽取主题。</p>
+
+            <pre><code># 英文基线：VADER（pip install nltk）
+from nltk.sentiment import SentimentIntensityAnalyzer
+sia = SentimentIntensityAnalyzer()
+
+def score(texts):
+    out = []
+    for t in texts:
+        s = sia.polarity_scores(t)["compound"]  # -1(负) ~ +1(正)
+        label = "正面" if s > 0.05 else "负面" if s < -0.05 else "中性"
+        out.append({"text": t, "score": s, "label": label})
+    return out
+
+scored = score(all_comments("ABC1234XYZ_"))
+pos = sum(1 for s in scored if s["label"] == "正面")
+print(f"{pos}/{len(scored)} 条评论为正面")</code></pre>
+
+            <h2>第四步：识别刷量(评论真实性)</h2>
+
+            <p>评估红人时，这一步最值钱:真实粉丝的评论内容多样、切题;而刷出来的互动往往是清一色单个表情、"很棒🔥"、"互关一下"之类的模板和垃圾评论。几个低成本高信号的检查:</p>
+
+            <pre><code>SPAM = {"互关", "follow back", "dm me", "加我", "私信"}
+
+def authenticity(texts):
+    if not texts:
+        return None
+    total = len(texts)
+    emoji_only = sum(1 for t in texts if t and not any(ch.isalnum() for ch in t))
+    spam = sum(1 for t in texts if any(p in t.lower() for p in SPAM))
+    dup = total - len(set(t.strip().lower() for t in texts))
+    return {
+        "纯表情占比": round(emoji_only / total * 100, 1),
+        "垃圾评论占比": round(spam / total * 100, 1),
+        "重复评论占比": round(dup / total * 100, 1),
+    }</code></pre>
+
+            <p>如果大量评论是纯表情、重复或满屏"互关"，那这条帖子的互动大概率是刷出来的——哪怕评论"数量"很好看。把这个和粉丝数/点赞数对比，就能在投放前判断一个红人值不值得合作。</p>
+
+            <h2>能做成什么</h2>
+
+            <ul>
+                <li><strong>品牌口碑看板</strong>——对自家账号的评论情绪做实时趋势线</li>
+                <li><strong>竞品舆情对比</strong>——同一套流程跑竞品账号</li>
+                <li><strong>上新/活动监测</strong>——发布后几小时到几天内追踪粉丝反应</li>
+                <li><strong>红人尽调</strong>——投放前筛掉刷量账号</li>
+            </ul>
+
+            <h2>费用大概多少</h2>
+
+            <p>分析一个品牌最近 30 条帖子、每条抓 ~3 页评论，大约 1 次资料 + 3 页帖子 + 30×3 ≈ <strong>94 次请求</strong>，也就一分多钱。各档价格：</p>
+
+            <ul>
+                <li><strong>免费 Basic：</strong>每月 30 次</li>
+                <li><strong>Pro($59/月)：</strong>含 150,000 次，超出 $0.13/千次</li>
+                <li><strong>Ultra($119/月)：</strong>含 900,000 次，超出 $0.11/千次</li>
+                <li><strong>Mega($249/月)：</strong>含 3,000,000 次，超出 $0.10/千次</li>
+            </ul>
+
+            <p>给请求加 <code>fields</code> 参数，只取评论文本和时间，能把原始 JSON 裁小，守住每月 10 GB 流量额度。</p>
+
+            <h2>合规提醒</h2>
+
+            <p>本 API 只返回 <strong>公开的 Instagram 数据</strong>。对公开评论做情绪/舆情分析是常见用途，但你需自行遵守 Instagram 服务条款及适用隐私法规(GDPR、CCPA)，尤其是存储评论文本和用户名时。与 Meta/Instagram 无隶属或背书关系。</p>
+
+            <h2>小结</h2>
+
+            <p>评论是最丰富又最被低估的公开数据源。用 <code>user_media</code> 找帖子、<code>media_comments</code> 抓评论，再做情绪打分和真实性检查，你就能把一堆零散评论变成可决策的洞察。每千次低至 $0.10，监测几十个品牌/红人也就几美元一个月。基础用法可先看 <a href="/blog/zh/instagram-user-data-python/">用 Python 获取用户资料和帖子</a> 和 <a href="/blog/zh/instagram-api-intro/">Instagram API 入门</a>。</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">在 RapidAPI 上免费开始 →</a></strong></p>
+
+            <blockquote>
+                <p><em>合规说明：本 API 仅返回公开的 Instagram 数据。你需自行遵守 Instagram 服务条款及适用隐私法规(GDPR/CCPA)。与 Meta/Instagram 无隶属或背书关系。</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>今天就开始构建</h3>
+            <p>Basic 免费档每月 30 次请求，无需承诺。</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">在 RapidAPI 上开始</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>合规：</strong>Instagram Cheapest 仅返回公开的 Instagram 数据。用户需自行遵守 Instagram 服务条款及适用隐私法规(GDPR、CCPA)。与 Meta 或 Instagram 无隶属或背书关系。
+        </p>
+        <div class="footer-links">
+            <a href="/">首页</a>
+            <a href="/blog/zh/">中文博客</a>
+            <a href="/blog/">English</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">RapidAPI 上的 API</a>
+        </div>
+    </footer>
+</body>
+</html>
