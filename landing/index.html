@@ -923,6 +923,10 @@ axios.request(options)
                 <p>Yes — it's a real-time Instagram scraper and data API. You call simple REST endpoints and get back raw JSON for public profiles, posts, Reels, comments, tagged media, and Reels audio, with no scraping infrastructure, proxies, or browser automation to maintain.</p>
             </div>
             <div class="faq-item">
+                <h3>What is the cheapest Instagram API?</h3>
+                <p>Instagram Cheapest is among the lowest-cost options, starting at <strong>$0.10 per 1,000 requests</strong> on the Mega tier and <strong>$0.13 per 1,000</strong> on the Pro tier — roughly 10-15× cheaper per record than premium scrapers like Bright Data. A free Basic tier includes 30 requests per month, so you can test before paying.</p>
+            </div>
+            <div class="faq-item">
                 <h3>Is this legal?</h3>
                 <p>Yes. Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). We are not affiliated with or endorsed by Meta or Instagram.</p>
             </div>
@@ -999,6 +1003,72 @@ axios.request(options)
       "sameAs": [
         "https://instagram.kolapihub.com/",
         "https://github.com/Lucio-oo/instagram-cheapest-api"
+      ]
+    }
+    </script>
+
+    <!-- FAQ Schema (mirrors the visible FAQ section for AI answer engines & rich results) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is this an Instagram scraper API?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes — it's a real-time Instagram scraper and data API. You call simple REST endpoints and get back raw JSON for public profiles, posts, Reels, comments, tagged media, and Reels audio, with no scraping infrastructure, proxies, or browser automation to maintain."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the cheapest Instagram API?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Instagram Cheapest is among the lowest-cost options, starting at $0.10 per 1,000 requests on the Mega tier and $0.13 per 1,000 on the Pro tier — roughly 10-15x cheaper per record than premium scrapers like Bright Data. A free Basic tier includes 30 requests per month."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is using the Instagram Cheapest API legal?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). It is not affiliated with or endorsed by Meta or Instagram."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I test the API for free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The Basic plan includes 30 free requests per month with no commitment. Sign up on RapidAPI and start testing immediately."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I authenticate with the API?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "All requests require two headers: x-rapidapi-host: instagram-cheapest.p.rapidapi.com and x-rapidapi-key: YOUR_RAPIDAPI_KEY. You get your key when you subscribe on RapidAPI."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What data can I fetch?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "User profiles (by username or numeric ID), user media posts, Reels, tagged media, comments, and Reels audio — across nine GET endpoints. All endpoints return real-time, uncached JSON."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How can I control bandwidth costs?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use the optional fields parameter to request only the JSON fields you need. This reduces response size and helps you stay under the 10 GB monthly bandwidth included with every tier. Additional bandwidth is billed at $0.001 per MB."
+          }
+        }
       ]
     }
     </script>
