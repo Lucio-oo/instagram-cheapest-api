@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用 API 下载 Instagram 图片和视频（Python & Node.js 实战）| Instagram Cheapest</title>
+    <meta name="description" content="用 Instagram Cheapest API 按短码或用户名下载公开的图片、视频、Reels 和轮播图。可直接照抄的 Python 与 Node.js 代码，从原始 JSON 里取出 CDN 链接并保存到本地。">
+    <meta name="keywords" content="下载 instagram 视频 api, 下载 instagram 图片, instagram 视频下载, instagram reels 下载 api, 保存 instagram 视频, instagram cdn 链接">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/zh/download-instagram-photos-videos/">
+    <meta property="og:title" content="用 API 下载 Instagram 图片和视频（Python & Node.js 实战）">
+    <meta property="og:description" content="按短码或用户名下载公开的图片、视频、Reels 和轮播图——可直接照抄的 Python 与 Node.js 代码。">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/zh/download-instagram-photos-videos/">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://instagram.kolapihub.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="用 API 下载 Instagram 图片和视频（Python & Node.js 实战）">
+    <meta name="twitter:description" content="按短码或用户名下载公开的图片、视频、Reels 和轮播图——可直接照抄的 Python 与 Node.js 代码。">
+    <meta name="twitter:image" content="https://instagram.kolapihub.com/og.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "用 API 下载 Instagram 图片和视频（Python & Node.js 实战）",
+      "description": "用 Instagram Cheapest API 按短码或用户名下载公开的图片、视频、Reels 和轮播图。可直接照抄的 Python 与 Node.js 代码，从原始 JSON 里取出 CDN 链接并保存到本地。",
+      "datePublished": "2026-06-16",
+      "inLanguage": "zh",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/zh/download-instagram-photos-videos/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">首页</a>
+                <a href="/blog/zh/">中文博客</a>
+                <a href="/blog/">English</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">在 RapidAPI 免费开始</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>用 API 下载 Instagram 图片和视频（Python &amp; Node.js 实战）</h1>
+
+            <p>你想把一条公开的 Instagram 图片、视频、Reels 或轮播图用程序保存到本地——而不是右键另存。难点很常见：Instagram 的媒体链接是<strong>带签名、会过期</strong>的，藏在 JS 动态渲染的页面里；官方 Meta Graph API 又只给你自己账号的媒体。自己写爬虫则要起浏览器、每次页面一改就得重新逆向。</p>
+
+            <p>本文用 RapidAPI 上的 <strong>Instagram Cheapest API</strong> 当中间层：你按短码(shortcode)请求一条帖子，或按 user_id 请求整个账号的媒体，它返回 Instagram 的<strong>原始 JSON</strong>(里面带着每张图、每个视频的 CDN 链接)，然后你把这些链接直接下载到本地。不用浏览器，不用代理。</p>
+
+            <p>读完你会有一段可直接照抄的代码，能：</p>
+
+            <ul>
+                <li>按短码抓取单条帖子或 Reel</li>
+                <li>从 JSON 里取出真正的图片/视频 CDN 链接</li>
+                <li>把图片(<code>.jpg</code>)和视频(<code>.mp4</code>)保存到文件夹</li>
+                <li>自动处理轮播图(多图帖子)</li>
+                <li>批量下载某个用户名下的全部帖子</li>
+            </ul>
+
+            <h2>下载的原理：两次独立的请求</h2>
+
+            <p>整个过程是两次不同的 HTTP 请求，务必在脑子里把它们分开：</p>
+
+            <ol>
+                <li><strong>取元数据(用你的 API Key)。</strong>你带着 <code>x-rapidapi-key</code> 调用 Instagram Cheapest API，返回的是带 CDN 链接的 Instagram 原始 JSON。</li>
+                <li><strong>下载字节(不用 API Key)。</strong>那些 CDN 链接指向 Instagram 自己的服务器(<code>*.cdninstagram.com</code> / <code>fbcdn.net</code>)。你用普通 GET 直接请求——<em>不要</em>带 RapidAPI 的请求头——把响应体写进文件。</li>
+            </ol>
+
+            <p>两个要点先记住：这些 CDN 链接<strong>带签名、会过期</strong>(常常几小时内失效)，所以取到后尽快下载,别把链接存下来下周再用。另外,下载字节走的是 Instagram CDN 而不是本 API，所以<strong>不消耗你的 RapidAPI 请求额度</strong>。</p>
+
+            <h2>准备工作</h2>
+
+            <ul>
+                <li>Python 3.8+ 并安装 <code>requests</code>(<code>pip install requests</code>)——或用 Node.js 18+ 跑 JS 版</li>
+                <li>一个免费的 RapidAPI 账号</li>
+                <li>订阅 <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Instagram Cheapest API</a>，免费 Basic 档每月 30 次，够跟着本文走一遍</li>
+            </ul>
+
+            <p>在 RapidAPI 后台拿到 <code>x-rapidapi-key</code>。每次 API 请求都带两个头：<code>x-rapidapi-key</code>(你的 key)和 <code>x-rapidapi-host: instagram-cheapest.p.rapidapi.com</code>。</p>
+
+            <h2>第一步：搭好客户端</h2>
+
+            <p>标准模板。基础地址是 <code>https://instagram-cheapest.p.rapidapi.com/api/v1/instagram</code>，所有接口都是 <code>GET</code>。</p>
+
+            <pre><code>import os
+import requests
+
+API_KEY = os.environ.get("RAPIDAPI_KEY", "你的_RAPIDAPI_KEY")
+HOST = "instagram-cheapest.p.rapidapi.com"
+BASE_URL = f"https://{HOST}/api/v1/instagram"
+
+HEADERS = {
+    "x-rapidapi-key": API_KEY,
+    "x-rapidapi-host": HOST,
+}
+
+
+def get(path, params=None):
+    """请求 Instagram Cheapest API，返回原始 JSON。"""
+    resp = requests.get(f"{BASE_URL}/{path}", headers=HEADERS,
+                        params=params, timeout=30)
+    resp.raise_for_status()
+    return resp.json()</code></pre>
+
+            <p>注意 30 秒超时：本 API 返回<strong>实时、未缓存</strong>的数据，是从 Instagram 现拉的，所以一次调用要几秒钟。给足时间，别太早失败。</p>
+
+            <h2>第二步：按短码抓取单条帖子或 Reel</h2>
+
+            <p>每条 Instagram 帖子和 Reel 都有一个<strong>短码(shortcode)</strong>——就是 URL 里 <code>/p/</code>、<code>/reel/</code> 或 <code>/tv/</code> 后面那串。比如 <code>https://www.instagram.com/p/Cabc123XYz/</code> 的短码是 <code>Cabc123XYz</code>。<code>media_by_code2</code> 接口用 <code>code</code> 查询参数接收它：</p>
+
+            <pre><code>import json
+
+def get_post(code):
+    return get("media_by_code2", params={"code": code})
+
+
+post = get_post("Cabc123XYz")   # 换成真实短码
+print(json.dumps(post, indent=2, ensure_ascii=False)[:2000])</code></pre>
+
+            <p>一定先打印原始响应。本 API 原样透传 Instagram 返回的内容，所以结构是 Instagram 的(不是我们固定的)，而且<strong>单图、视频/Reel、轮播图的结构会不一样</strong>。打印一次就能看清你关心的那种帖子里媒体链接放在哪。</p>
+
+            <h2>第三步：从 JSON 里取出媒体链接</h2>
+
+            <p>与其硬编码一条脆弱的路径(如 <code>post["items"][0]["video_versions"][0]["url"]</code>),不如遍历整棵 JSON 树，把找到的每个媒体链接都收集起来。Instagram 把图片候选放在 <code>image_versions2.candidates</code>、把视频不同清晰度放在 <code>video_versions</code>(每个都带 <code>width</code>，方便挑最高清的)。因为是递归遍历，它能<strong>自动处理轮播图</strong>——每张图各自带着自己的版本信息：</p>
+
+            <pre><code>def find_media(node, found=None):
+    """递归收集原始 Instagram JSON 里的图片/视频链接。
+
+    返回一个列表，每个媒体(图或视频)一项，
+    各取其可用的最高清链接。
+    如果哪天 Instagram 改了结构，对照你自己打印的 JSON 核对下面的 key。
+    """
+    if found is None:
+        found = []
+
+    if isinstance(node, dict):
+        # 视频项：video_versions 是不同清晰度的列表，带 width。
+        videos = node.get("video_versions")
+        if isinstance(videos, list) and videos:
+            best = max(videos, key=lambda v: v.get("width", 0) or 0)
+            if best.get("url"):
+                found.append({"type": "video", "url": best["url"]})
+
+        # 图片项：image_versions2.candidates 是不同尺寸的列表。
+        iv = node.get("image_versions2")
+        if isinstance(iv, dict):
+            candidates = iv.get("candidates") or []
+            # 只有当该节点不是视频时，才当作独立图片
+            # (视频也带一张封面图，我们不想保存它)。
+            if candidates and not (isinstance(videos, list) and videos):
+                best = max(candidates, key=lambda c: c.get("width", 0) or 0)
+                if best.get("url"):
+                    found.append({"type": "photo", "url": best["url"]})
+
+        for value in node.values():
+            find_media(value, found)
+
+    elif isinstance(node, list):
+        for item in node:
+            find_media(item, found)
+
+    return found
+
+
+media = find_media(post)
+for m in media:
+    print(m["type"], m["url"][:80], "...")</code></pre>
+
+            <p>图片那段的判断很关键：视频项也会带一张封面/缩略图放在 <code>image_versions2</code> 里，你通常不想把它当成单独的「图片」保存。当同一节点已有 <code>video_versions</code> 时跳过图片，就能保证每张轮播图只出一个干净文件。</p>
+
+            <h2>第四步：把文件下载到本地</h2>
+
+            <p>现在是第二次 HTTP 请求。直接请求 CDN 链接——<strong>不带 RapidAPI 请求头</strong>——把字节流式写入文件。扩展名按媒体类型决定：</p>
+
+            <pre><code>import os
+
+def download_media(media, out_dir="downloads", prefix="ig"):
+    os.makedirs(out_dir, exist_ok=True)
+    saved = []
+    for i, m in enumerate(media):
+        ext = "mp4" if m["type"] == "video" else "jpg"
+        path = os.path.join(out_dir, f"{prefix}_{i}.{ext}")
+        # 这里不带 API key —— 这是 Instagram 的公开 CDN。
+        with requests.get(m["url"], timeout=60, stream=True) as r:
+            r.raise_for_status()
+            with open(path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        saved.append(path)
+        print(f"已保存 {path}")
+    return saved
+
+
+# 单条帖子的完整流程：
+post = get_post("Cabc123XYz")
+download_media(find_media(post), prefix="Cabc123XYz")</code></pre>
+
+            <p>这就是整个单帖下载器：取 JSON → 找链接 → 流式存盘。轮播图会出多个文件，Reel 出一个 <code>.mp4</code>。因为 CDN 链接会过期，第二步取到后请<strong>紧接着</strong>跑第四步，别缓存链接。</p>
+
+            <h2>第五步：批量下载某用户名下的全部帖子</h2>
+
+            <p>要抓整个账号，需要数字 <code>user_id</code>(媒体接口不接受用户名)。先用 <code>userinfo</code> 解析一次，再翻页请求 <code>user_media</code>——每页约 12 条，响应顶层会回传 <code>next_max_id</code> 和 <code>more_available</code> 用于翻页：</p>
+
+            <pre><code>import time
+
+def get_user_id(username):
+    profile = get(f"user/{username}")
+    # key 以你打印的 profile JSON 为准。
+    return profile.get("id") or profile.get("pk")
+
+
+def download_profile(username, max_pages=3):
+    user_id = get_user_id(username)
+    next_max_id, page = None, 0
+
+    while page < max_pages:
+        params = {"user_id": user_id}
+        if next_max_id:
+            params["next_max_id"] = next_max_id
+
+        resp = get("user_media", params=params)
+        media = find_media(resp)
+        print(f"第 {page + 1} 页：找到 {len(media)} 个媒体文件")
+        download_media(media, out_dir=f"downloads/{username}",
+                       prefix=f"{username}_p{page}")
+
+        # 翻页由响应驱动，不靠假设。
+        if not resp.get("more_available"):
+            break
+        next_max_id = resp.get("next_max_id")
+        if not next_max_id:
+            break
+        page += 1
+        time.sleep(1)   # 友好一点；免费档约 1 次/秒
+
+
+download_profile("nike", max_pages=2)</code></pre>
+
+            <p>每翻一页算一次计费请求(下载字节走 CDN，免费)。<code>time.sleep(1)</code> 帮你卡在免费档约 1 次/秒的限速内,付费档可以加快。只想要 Reels?把 <code>user_media</code> 换成 <code>user_reels</code> 即可(它用 <code>after</code> 游标翻页，游标取自响应里的 <code>page_info.end_cursor</code>，而不是 <code>next_max_id</code>)。</p>
+
+            <h2>Node.js 版</h2>
+
+            <p>同样的两步流程，用 Node 18+ 内置的 <code>fetch</code> 和 <code>fs</code>。递归找链接的思路完全一致：</p>
+
+            <pre><code>import { writeFile, mkdir } from "node:fs/promises";
+
+const API_KEY = process.env.RAPIDAPI_KEY || "你的_RAPIDAPI_KEY";
+const HOST = "instagram-cheapest.p.rapidapi.com";
+const BASE_URL = `https://${HOST}/api/v1/instagram`;
+
+async function get(path, params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  const url = `${BASE_URL}/${path}${qs ? "?" + qs : ""}`;
+  const res = await fetch(url, {
+    headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": HOST },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${path}`);
+  return res.json();
+}
+
+// 递归收集最高清的图片/视频链接。
+function findMedia(node, found = []) {
+  if (Array.isArray(node)) {
+    node.forEach((item) => findMedia(item, found));
+  } else if (node && typeof node === "object") {
+    const videos = node.video_versions;
+    if (Array.isArray(videos) && videos.length) {
+      const best = videos.reduce((a, b) => ((b.width || 0) > (a.width || 0) ? b : a));
+      if (best.url) found.push({ type: "video", url: best.url });
+    }
+    const cands = node.image_versions2?.candidates;
+    if (Array.isArray(cands) && cands.length && !(Array.isArray(videos) && videos.length)) {
+      const best = cands.reduce((a, b) => ((b.width || 0) > (a.width || 0) ? b : a));
+      if (best.url) found.push({ type: "photo", url: best.url });
+    }
+    Object.values(node).forEach((v) => findMedia(v, found));
+  }
+  return found;
+}
+
+async function downloadMedia(media, dir = "downloads", prefix = "ig") {
+  await mkdir(dir, { recursive: true });
+  for (let i = 0; i < media.length; i++) {
+    const ext = media[i].type === "video" ? "mp4" : "jpg";
+    const res = await fetch(media[i].url); // 不带 API 头 —— 公开 CDN
+    const buf = Buffer.from(await res.arrayBuffer());
+    const path = `${dir}/${prefix}_${i}.${ext}`;
+    await writeFile(path, buf);
+    console.log(`已保存 ${path}`);
+  }
+}
+
+// 按短码下载单条帖子：
+const post = await get("media_by_code2", { code: "Cabc123XYz" });
+await downloadMedia(findMedia(post), "downloads", "Cabc123XYz");</code></pre>
+
+            <h2>curl + jq 快速一行</h2>
+
+            <p>只想在终端里看一眼链接的话，用 <code>curl</code> 取 JSON、再用 <code>jq</code> 挖出视频链接：</p>
+
+            <pre><code>curl -s "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/media_by_code2?code=Cabc123XYz" \
+  -H "x-rapidapi-key: $RAPIDAPI_KEY" \
+  -H "x-rapidapi-host: instagram-cheapest.p.rapidapi.com" \
+  | jq -r '.. | .video_versions? // empty | .[0].url'
+
+# 然后下载它打印出来的链接：
+curl -o reel.mp4 "&lt;把上面的-cdn-链接粘到这里&gt;"</code></pre>
+
+            <p><code>jq</code> 里的 <code>..</code> 递归下降跟上面的递归遍历是一个意思——不用知道确切路径，就能在整棵树里找到 <code>video_versions</code>。</p>
+
+            <h2>费用</h2>
+
+            <p>只有取元数据的调用计费;真正的媒体字节由 Instagram CDN 免费提供。按请求计费，量越大单价越低:Mega 档<strong>每千次低至 $0.10</strong>、Ultra 档 $0.11、Pro 档 $0.13，另有免费 Basic 档(每月 30 次)供原型验证。由于一页 <code>user_media</code> 约返回 12 条帖子，下载一个账号的 1,000 条帖子大约只需 ~85 次 API 调用——在顶档连一分钱请求费都不到。各档另含每月 10 GB 的 API 流量(指响应 JSON，不含媒体下载),超出按 $0.001/MB 计费。</p>
+
+            <h2>小结</h2>
+
+            <p>用程序下载 Instagram 媒体，归根结底是干净的两步:用 Instagram Cheapest API 把短码或用户名变成原始 JSON,遍历 JSON 收集 CDN 链接,再用普通 GET 把链接流式存盘。递归查找器让你保持诚实——它能适配单图、Reels 和轮播图,而不硬编码脆弱路径;黄金法则照旧:<strong>先打印 JSON,以你实际看到的为准。</strong></p>
+
+            <p>想动手做下载器?从免费档开始:</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">在 RapidAPI 上免费开始 →</a></strong></p>
+
+            <blockquote>
+                <p><em>合规说明:本 API 仅返回公开的 Instagram 数据。下载并使用他人的媒体可能受版权和 Instagram 服务条款限制——只下载你有权使用的内容,并遵守适用法律(GDPR/CCPA)。本产品与 Meta/Instagram 无隶属或背书关系。</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>今天就开始构建</h3>
+            <p>Basic 免费档每月 30 次请求，无需承诺。</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">在 RapidAPI 上开始</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>合规：</strong>Instagram Cheapest 仅返回公开的 Instagram 数据。用户需自行遵守 Instagram 服务条款及适用隐私法规(GDPR、CCPA)。与 Meta 或 Instagram 无隶属或背书关系。
+        </p>
+        <div class="footer-links">
+            <a href="/">首页</a>
+            <a href="/blog/zh/">中文博客</a>
+            <a href="/blog/">English</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">RapidAPI 上的 API</a>
+        </div>
+    </footer>
+</body>
+</html>

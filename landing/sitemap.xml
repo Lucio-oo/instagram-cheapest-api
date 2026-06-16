@@ -61,6 +61,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://instagram.kolapihub.com/blog/download-instagram-photos-videos-api/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://instagram.kolapihub.com/blog/instagram-competitor-analysis-api/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -78,6 +83,11 @@
   <url>
     <loc>https://instagram.kolapihub.com/blog/zh/</loc>
     <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://instagram.kolapihub.com/blog/zh/download-instagram-photos-videos/</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>

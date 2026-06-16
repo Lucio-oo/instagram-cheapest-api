@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Download Instagram Photos and Videos with an API (Python & Node.js) | Instagram Cheapest</title>
+    <meta name="description" content="Download Instagram photos, videos, Reels, and carousels by shortcode or username with the Instagram Cheapest API. Copy-paste Python and Node.js code that saves media to disk.">
+    <meta name="keywords" content="download instagram video api, download instagram photo api, instagram media downloader, instagram reels downloader api, save instagram video, instagram cdn url api">
+    <link rel="canonical" href="https://instagram.kolapihub.com/blog/download-instagram-photos-videos-api/">
+    <meta property="og:title" content="How to Download Instagram Photos and Videos with an API (Python & Node.js)">
+    <meta property="og:description" content="Download Instagram photos, videos, Reels, and carousels by shortcode or username with the Instagram Cheapest API. Copy-paste Python and Node.js code that saves media to disk.">
+    <meta property="og:url" content="https://instagram.kolapihub.com/blog/download-instagram-photos-videos-api/">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://instagram.kolapihub.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Download Instagram Photos and Videos with an API (Python & Node.js)">
+    <meta name="twitter:description" content="Download Instagram photos, videos, Reels, and carousels by shortcode or username with the Instagram Cheapest API. Copy-paste Python and Node.js code that saves media to disk.">
+    <meta name="twitter:image" content="https://instagram.kolapihub.com/og.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='.5' stop-color='%23ec4899'/><stop offset='1' stop-color='%23f59e0b'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='2.5'/><circle cx='23' cy='9' r='1.8' fill='%23fff'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/blog.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "How to Download Instagram Photos and Videos with an API (Python & Node.js)",
+      "description": "Download Instagram photos, videos, Reels, and carousels by shortcode or username with the Instagram Cheapest API. Copy-paste Python and Node.js code that saves media to disk.",
+      "datePublished": "2026-06-16",
+      "author": {
+        "@type": "Organization",
+        "name": "Instagram Cheapest"
+      },
+      "mainEntityOfPage": "https://instagram.kolapihub.com/blog/download-instagram-photos-videos-api/"
+    }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">Instagram Cheapest</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/">Blog</a>
+                <a href="/compare/">Compare</a>
+                <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn btn-primary">Start Free on RapidAPI</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-container">
+        <article>
+            <h1>How to Download Instagram Photos and Videos with an API (Python &amp; Node.js)</h1>
+
+            <p>You want to save a public Instagram photo, video, Reel, or carousel to disk — programmatically, not by right-clicking. The blockers are familiar: Instagram's media URLs are signed, short-lived, and buried in JavaScript-rendered pages, and the official Meta Graph API only exposes media for accounts you own. Scraping the page yourself means rendering a browser and reverse-engineering the page state every time it changes.</p>
+
+            <p>This guide uses the <strong>Instagram Cheapest</strong> API on RapidAPI as the middle layer. You ask it for a post (by shortcode) or a whole profile's media (by user ID), it returns the raw Instagram JSON — including the CDN URLs for every image and video — and then you download those URLs straight to disk with a plain HTTP request. No browser, no proxies.</p>
+
+            <p>By the end you'll have copy-paste code that:</p>
+
+            <ul>
+                <li>Fetches a single post or Reel by its shortcode</li>
+                <li>Pulls the real image/video CDN URLs out of the JSON</li>
+                <li>Saves photos (<code>.jpg</code>) and videos (<code>.mp4</code>) to a folder</li>
+                <li>Handles carousels (multi-image posts) automatically</li>
+                <li>Bulk-downloads every post from a username</li>
+            </ul>
+
+            <h2>How downloading actually works</h2>
+
+            <p>It's two distinct HTTP calls, and it's important to keep them separate in your head:</p>
+
+            <ol>
+                <li><strong>Get the metadata (uses your API key).</strong> You call the Instagram Cheapest API with your <code>x-rapidapi-key</code>. The response is raw Instagram JSON containing the media's CDN URLs.</li>
+                <li><strong>Download the bytes (no API key).</strong> The CDN URLs point at Instagram's own servers (<code>*.cdninstagram.com</code> / <code>fbcdn.net</code>). You fetch those directly with a normal GET — <em>no</em> RapidAPI headers — and write the response body to a file.</li>
+            </ol>
+
+            <p>Two consequences worth knowing up front: those CDN URLs are <strong>signed and expire</strong> (often within hours), so download soon after you fetch them — don't store the URL and try to use it next week. And because the byte download hits Instagram's CDN, not the API, it doesn't count against your RapidAPI request quota.</p>
+
+            <h2>Prerequisites</h2>
+
+            <ul>
+                <li>Python 3.8+ and the <code>requests</code> library (<code>pip install requests</code>) — or Node.js 18+ for the JavaScript version</li>
+                <li>A free RapidAPI account</li>
+                <li>A subscription to the <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Instagram Cheapest API</a> — the Basic plan is free (30 calls/month), enough to work through this guide</li>
+            </ul>
+
+            <p>Grab your <code>x-rapidapi-key</code> from the RapidAPI dashboard. Every API request sends two headers: <code>x-rapidapi-key</code> (your key) and <code>x-rapidapi-host: instagram-cheapest.p.rapidapi.com</code>.</p>
+
+            <h2>Step 1: Set up the client</h2>
+
+            <p>Standard boilerplate. The base URL is <code>https://instagram-cheapest.p.rapidapi.com/api/v1/instagram</code> and every endpoint is a <code>GET</code>.</p>
+
+            <pre><code>import os
+import requests
+
+API_KEY = os.environ.get("RAPIDAPI_KEY", "YOUR_RAPIDAPI_KEY")
+HOST = "instagram-cheapest.p.rapidapi.com"
+BASE_URL = f"https://{HOST}/api/v1/instagram"
+
+HEADERS = {
+    "x-rapidapi-key": API_KEY,
+    "x-rapidapi-host": HOST,
+}
+
+
+def get(path, params=None):
+    """GET against the Instagram Cheapest API (returns raw JSON)."""
+    resp = requests.get(f"{BASE_URL}/{path}", headers=HEADERS,
+                        params=params, timeout=30)
+    resp.raise_for_status()
+    return resp.json()</code></pre>
+
+            <p>Note the 30-second timeout: this API returns <strong>real-time, uncached</strong> data pulled live from Instagram, so a call takes a few seconds. Give it room rather than failing early.</p>
+
+            <h2>Step 2: Fetch a single post or Reel by shortcode</h2>
+
+            <p>Every Instagram post and Reel has a <strong>shortcode</strong> — the part after <code>/p/</code>, <code>/reel/</code>, or <code>/tv/</code> in its URL. For <code>https://www.instagram.com/p/Cabc123XYz/</code> the shortcode is <code>Cabc123XYz</code>. The <code>media_by_code2</code> endpoint takes it as the <code>code</code> query param:</p>
+
+            <pre><code>import json
+
+def get_post(code):
+    return get("media_by_code2", params={"code": code})
+
+
+post = get_post("Cabc123XYz")   # replace with a real shortcode
+print(json.dumps(post, indent=2)[:2000])</code></pre>
+
+            <p>Always print the raw response first. This API passes through <strong>exactly</strong> what Instagram returns, so the structure is Instagram's, not ours — and it can differ between a single image, a video/Reel, and a carousel. Inspecting the JSON once tells you where the media URLs live for the post type you care about.</p>
+
+            <h2>Step 3: Pull the media URLs out of the JSON</h2>
+
+            <p>Rather than hardcode a brittle path like <code>post["items"][0]["video_versions"][0]["url"]</code>, we'll walk the whole JSON tree and collect every media URL we find. Instagram nests image candidates under <code>image_versions2.candidates</code> and video renditions under <code>video_versions</code> (each with a <code>width</code> so you can pick the highest resolution). Because the walker recurses, it transparently handles carousels — where each slide carries its own versions:</p>
+
+            <pre><code>def find_media(node, found=None):
+    """Recursively collect image/video URLs from raw Instagram JSON.
+
+    Returns a list of dicts, one per media item (photo or video),
+    each with the best (highest-resolution) URL available.
+    Verify the keys below against your own printed JSON if Instagram
+    ever changes the response shape.
+    """
+    if found is None:
+        found = []
+
+    if isinstance(node, dict):
+        # A video item: video_versions is a list of renditions w/ widths.
+        videos = node.get("video_versions")
+        if isinstance(videos, list) and videos:
+            best = max(videos, key=lambda v: v.get("width", 0) or 0)
+            if best.get("url"):
+                found.append({"type": "video", "url": best["url"]})
+
+        # A photo item: image_versions2.candidates is a list of sizes.
+        iv = node.get("image_versions2")
+        if isinstance(iv, dict):
+            candidates = iv.get("candidates") or []
+            # Only treat as a standalone photo if this node isn't a video
+            # (videos also carry a poster image we don't want to save).
+            if candidates and not (isinstance(videos, list) and videos):
+                best = max(candidates, key=lambda c: c.get("width", 0) or 0)
+                if best.get("url"):
+                    found.append({"type": "photo", "url": best["url"]})
+
+        for value in node.values():
+            find_media(value, found)
+
+    elif isinstance(node, list):
+        for item in node:
+            find_media(item, found)
+
+    return found
+
+
+media = find_media(post)
+for m in media:
+    print(m["type"], m["url"][:80], "...")</code></pre>
+
+            <p>The guard around the image block matters: a video item also ships a poster/thumbnail under <code>image_versions2</code>, and you usually don't want to save that as a separate "photo." Skipping the image when the same node has <code>video_versions</code> keeps one clean file per slide.</p>
+
+            <h2>Step 4: Download the files to disk</h2>
+
+            <p>Now the second HTTP call. We hit the CDN URL directly — <strong>no RapidAPI headers</strong> — and stream the bytes to a file. We pick the extension from the media type:</p>
+
+            <pre><code>import os
+
+def download_media(media, out_dir="downloads", prefix="ig"):
+    os.makedirs(out_dir, exist_ok=True)
+    saved = []
+    for i, m in enumerate(media):
+        ext = "mp4" if m["type"] == "video" else "jpg"
+        path = os.path.join(out_dir, f"{prefix}_{i}.{ext}")
+        # No API key here — this is Instagram's public CDN.
+        with requests.get(m["url"], timeout=60, stream=True) as r:
+            r.raise_for_status()
+            with open(path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        saved.append(path)
+        print(f"saved {path}")
+    return saved
+
+
+# Full flow for one post:
+post = get_post("Cabc123XYz")
+download_media(find_media(post), prefix="Cabc123XYz")</code></pre>
+
+            <p>That's the entire single-post downloader: fetch JSON → find URLs → stream to disk. A carousel just yields multiple files; a Reel yields one <code>.mp4</code>. Because the CDN links expire, run step 4 right after step 2 — don't cache the URLs.</p>
+
+            <h2>Step 5: Bulk-download every post from a username</h2>
+
+            <p>To grab a whole profile, you need the numeric <code>user_id</code> (the media endpoints don't accept usernames). Resolve it once with <code>userinfo</code>, then page through <code>user_media</code>, which returns ~12 posts per page and echoes a top-level <code>next_max_id</code> plus <code>more_available</code> for pagination:</p>
+
+            <pre><code>import time
+
+def get_user_id(username):
+    profile = get(f"user/{username}")
+    # Confirm the key against your printed profile JSON.
+    return profile.get("id") or profile.get("pk")
+
+
+def download_profile(username, max_pages=3):
+    user_id = get_user_id(username)
+    next_max_id, page = None, 0
+
+    while page < max_pages:
+        params = {"user_id": user_id}
+        if next_max_id:
+            params["next_max_id"] = next_max_id
+
+        resp = get("user_media", params=params)
+        media = find_media(resp)
+        print(f"page {page + 1}: found {len(media)} media files")
+        download_media(media, out_dir=f"downloads/{username}",
+                       prefix=f"{username}_p{page}")
+
+        # Pagination is driven by the response, not assumptions.
+        if not resp.get("more_available"):
+            break
+        next_max_id = resp.get("next_max_id")
+        if not next_max_id:
+            break
+        page += 1
+        time.sleep(1)   # be polite; the free tier is ~1 req/sec
+
+
+download_profile("nike", max_pages=2)</code></pre>
+
+            <p>Each page is one billed API request (the byte downloads are free CDN traffic). The <code>time.sleep(1)</code> keeps you under the free tier's ~1 request/second limit; raise the pace on a paid tier. Want Reels specifically? Swap <code>user_media</code> for <code>user_reels</code> (it paginates with an <code>after</code> cursor read from <code>page_info.end_cursor</code> instead of <code>next_max_id</code>).</p>
+
+            <h2>The Node.js version</h2>
+
+            <p>Same two-step flow with the built-in <code>fetch</code> (Node 18+) and <code>fs</code>. The recursive URL finder is identical in spirit:</p>
+
+            <pre><code>import { writeFile, mkdir } from "node:fs/promises";
+
+const API_KEY = process.env.RAPIDAPI_KEY || "YOUR_RAPIDAPI_KEY";
+const HOST = "instagram-cheapest.p.rapidapi.com";
+const BASE_URL = `https://${HOST}/api/v1/instagram`;
+
+async function get(path, params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  const url = `${BASE_URL}/${path}${qs ? "?" + qs : ""}`;
+  const res = await fetch(url, {
+    headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": HOST },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${path}`);
+  return res.json();
+}
+
+// Recursively collect best-resolution image/video URLs.
+function findMedia(node, found = []) {
+  if (Array.isArray(node)) {
+    node.forEach((item) => findMedia(item, found));
+  } else if (node && typeof node === "object") {
+    const videos = node.video_versions;
+    if (Array.isArray(videos) && videos.length) {
+      const best = videos.reduce((a, b) => ((b.width || 0) > (a.width || 0) ? b : a));
+      if (best.url) found.push({ type: "video", url: best.url });
+    }
+    const cands = node.image_versions2?.candidates;
+    if (Array.isArray(cands) && cands.length && !(Array.isArray(videos) && videos.length)) {
+      const best = cands.reduce((a, b) => ((b.width || 0) > (a.width || 0) ? b : a));
+      if (best.url) found.push({ type: "photo", url: best.url });
+    }
+    Object.values(node).forEach((v) => findMedia(v, found));
+  }
+  return found;
+}
+
+async function downloadMedia(media, dir = "downloads", prefix = "ig") {
+  await mkdir(dir, { recursive: true });
+  for (let i = 0; i < media.length; i++) {
+    const ext = media[i].type === "video" ? "mp4" : "jpg";
+    const res = await fetch(media[i].url); // no API headers — public CDN
+    const buf = Buffer.from(await res.arrayBuffer());
+    const path = `${dir}/${prefix}_${i}.${ext}`;
+    await writeFile(path, buf);
+    console.log(`saved ${path}`);
+  }
+}
+
+// Download one post by shortcode:
+const post = await get("media_by_code2", { code: "Cabc123XYz" });
+await downloadMedia(findMedia(post), "downloads", "Cabc123XYz");</code></pre>
+
+            <h2>Quick one-liner with curl + jq</h2>
+
+            <p>If you just want to eyeball the URLs from the terminal, fetch the JSON with <code>curl</code> and dig out video links with <code>jq</code>:</p>
+
+            <pre><code>curl -s "https://instagram-cheapest.p.rapidapi.com/api/v1/instagram/media_by_code2?code=Cabc123XYz" \
+  -H "x-rapidapi-key: $RAPIDAPI_KEY" \
+  -H "x-rapidapi-host: instagram-cheapest.p.rapidapi.com" \
+  | jq -r '.. | .video_versions? // empty | .[0].url'
+
+# Then download whatever URL it prints:
+curl -o reel.mp4 "&lt;paste-the-cdn-url-here&gt;"</code></pre>
+
+            <p>The <code>..</code> recursive descent in <code>jq</code> mirrors the recursive walker above — it finds <code>video_versions</code> anywhere in the tree without you knowing the exact path.</p>
+
+            <h2>What it costs</h2>
+
+            <p>Only the metadata calls are billed; the actual media bytes come free from Instagram's CDN. Pricing is per request and drops as you scale: <strong>from $0.10 per 1,000 requests</strong> on the Mega tier, $0.11 on Ultra, and $0.13 on Pro, with a free Basic plan (30 calls/month) for prototyping. Since one <code>user_media</code> page returns ~12 posts, downloading 1,000 posts from a profile is on the order of ~85 API calls — well under a penny of request cost at the top tier. Each tier also includes 10 GB/month of API bandwidth (response JSON, not the media downloads), billed at $0.001/MB beyond that.</p>
+
+            <h2>Conclusion</h2>
+
+            <p>Downloading Instagram media programmatically comes down to a clean two-step split: use the Instagram Cheapest API to turn a shortcode or username into raw JSON, walk that JSON to collect the CDN URLs, then stream those URLs to disk with an ordinary GET. The recursive finder keeps you honest — it adapts to single photos, Reels, and carousels without hardcoding a fragile path — and the golden rule still holds: <strong>print the JSON and verify against what you actually see.</strong></p>
+
+            <p>Ready to build your downloader? Start on the free tier:</p>
+
+            <p><strong><a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">Get started with the Instagram Cheapest API on RapidAPI →</a></strong></p>
+
+            <blockquote>
+                <p><em>Compliance note: this API returns public Instagram data only. Downloading and reusing someone else's media may be restricted by copyright and Instagram's terms — only download content you have the right to use, and comply with applicable law (GDPR/CCPA). This product is not affiliated with or endorsed by Meta/Instagram.</em></p>
+            </blockquote>
+        </article>
+
+        <div class="article-cta">
+            <h3>Start Building Today</h3>
+            <p>Get 30 free requests per month on the Basic plan. No commitment required.</p>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest" class="btn">Get Started on RapidAPI</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>Compliance:</strong> Instagram Cheapest returns public Instagram data only. Users are responsible for complying with Instagram's terms of service and applicable privacy laws (GDPR, CCPA). Not affiliated with or endorsed by Meta or Instagram.
+        </p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/blog/">Blog</a>
+            <a href="/compare/">Compare</a>
+            <a href="https://rapidapi.com/liucccccccccccc/api/instagram-cheapest">API on RapidAPI</a>
+        </div>
+    </footer>
+</body>
+</html>
