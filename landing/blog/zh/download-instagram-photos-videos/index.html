@@ -321,6 +321,156 @@ curl -o reel.mp4 "&lt;把上面的-cdn-链接粘到这里&gt;"</code></pre>
 
             <p><code>jq</code> 里的 <code>..</code> 递归下降跟上面的递归遍历是一个意思——不用知道确切路径，就能在整棵树里找到 <code>video_versions</code>。</p>
 
+            <h2>完整脚本（复制即用）</h2>
+
+            <p>不想自己拼?把下面整段存成 <code>download_media.py</code>,设好 <code>RAPIDAPI_KEY</code> 就能直接跑。它把上面所有步骤合在一起,还支持命令行参数:传短码下单条,传 <code>@用户名</code> 下整个账号,直接粘 URL 也行。</p>
+
+            <pre><code>#!/usr/bin/env python3
+"""按短码或用户名下载公开的 Instagram 图片和视频(Instagram Cheapest API)。
+
+安装与配置:
+    pip install requests
+    export RAPIDAPI_KEY='你的key'      # 在 RapidAPI 页面获取
+
+用法:
+    python3 download_media.py Cabc123XYz                 # 按短码下单条帖子/Reel
+    python3 download_media.py @nike                      # 下整个账号
+    python3 download_media.py @nike --pages 5            # 多翻几页
+    python3 download_media.py https://www.instagram.com/p/Cabc123XYz/   # 直接粘 URL
+
+文件存到 ./downloads/。注意:Instagram CDN 链接带签名会过期,所以脚本取到 JSON 后立即下载。
+"""
+import os
+import sys
+import json
+import time
+import argparse
+import requests
+
+HOST = "instagram-cheapest.p.rapidapi.com"
+BASE_URL = f"https://{HOST}/api/v1/instagram"
+API_KEY = os.environ.get("RAPIDAPI_KEY", "")
+HEADERS = {"x-rapidapi-key": API_KEY, "x-rapidapi-host": HOST}
+
+
+def get(path, params=None):
+    resp = requests.get(f"{BASE_URL}/{path}", headers=HEADERS, params=params, timeout=30)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def find_media(node, found=None):
+    """递归收集最高清的图片/视频链接,自动适配单图、Reel 和轮播图。"""
+    if found is None:
+        found = []
+    if isinstance(node, dict):
+        videos = node.get("video_versions")
+        if isinstance(videos, list) and videos:
+            best = max(videos, key=lambda v: v.get("width", 0) or 0)
+            if best.get("url"):
+                found.append({"type": "video", "url": best["url"]})
+        iv = node.get("image_versions2")
+        if isinstance(iv, dict):
+            candidates = iv.get("candidates") or []
+            if candidates and not (isinstance(videos, list) and videos):
+                best = max(candidates, key=lambda c: c.get("width", 0) or 0)
+                if best.get("url"):
+                    found.append({"type": "photo", "url": best["url"]})
+        for value in node.values():
+            find_media(value, found)
+    elif isinstance(node, list):
+        for item in node:
+            find_media(item, found)
+    return found
+
+
+def download_media(media, out_dir="downloads", prefix="ig"):
+    os.makedirs(out_dir, exist_ok=True)
+    saved = []
+    for i, m in enumerate(media):
+        ext = "mp4" if m["type"] == "video" else "jpg"
+        path = os.path.join(out_dir, f"{prefix}_{i}.{ext}")
+        with requests.get(m["url"], timeout=60, stream=True) as r:   # 公开 CDN，无需 API key
+            r.raise_for_status()
+            with open(path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        print(f"  已保存 {path}")
+        saved.append(path)
+    return saved
+
+
+def download_post(code):
+    print(f"抓取帖子 {code} ...")
+    post = get("media_by_code2", params={"code": code})
+    media = find_media(post)
+    print(f"找到 {len(media)} 个媒体文件")
+    return download_media(media, prefix=code)
+
+
+def download_profile(username, max_pages=3):
+    profile = get(f"user/{username}")
+    user_id = profile.get("id") or profile.get("pk")
+    if not user_id:
+        print("没找到 user_id，原始资料(前 1KB):")
+        print(json.dumps(profile, indent=2, ensure_ascii=False)[:1000])
+        return []
+    print(f"{username} -&gt; user_id {user_id}")
+    saved, next_max_id, page = [], None, 0
+    while page &lt; max_pages:
+        params = {"user_id": user_id}
+        if next_max_id:
+            params["next_max_id"] = next_max_id
+        resp = get("user_media", params=params)
+        media = find_media(resp)
+        print(f"第 {page + 1} 页：{len(media)} 个媒体文件")
+        saved += download_media(media, out_dir=f"downloads/{username}",
+                                prefix=f"{username}_p{page}")
+        if not resp.get("more_available"):
+            break
+        next_max_id = resp.get("next_max_id")
+        if not next_max_id:
+            break
+        page += 1
+        time.sleep(1)   # 卡在免费档约 1 次/秒
+    return saved
+
+
+def parse_target(target):
+    """把输入解析成 ('post', 短码) 或 ('profile', 用户名)。"""
+    t = target.strip().rstrip("/")
+    if "instagram.com" in t:
+        parts = [p for p in t.split("/") if p]
+        for kw in ("p", "reel", "reels", "tv"):
+            if kw in parts:
+                return "post", parts[parts.index(kw) + 1]
+        return "profile", parts[-1].lstrip("@")
+    if t.startswith("@"):
+        return "profile", t[1:]
+    return "post", t
+
+
+def main():
+    parser = argparse.ArgumentParser(description="下载公开的 Instagram 媒体")
+    parser.add_argument("target", help="短码、@用户名 或完整 instagram.com 链接")
+    parser.add_argument("--pages", type=int, default=3, help="下账号时最多翻几页(默认 3)")
+    args = parser.parse_args()
+
+    if not API_KEY:
+        sys.exit("先设置 RAPIDAPI_KEY:  export RAPIDAPI_KEY='你的key'")
+
+    kind, value = parse_target(args.target)
+    if kind == "profile":
+        download_profile(value, max_pages=args.pages)
+    else:
+        download_post(value)
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+
+            <p>Node.js 用户:把上面「Node.js 版」那段补上同样的 <code>parse_target</code> / <code>main</code> 即可,完整版结构一致。</p>
+
             <h2>费用</h2>
 
             <p>只有取元数据的调用计费;真正的媒体字节由 Instagram CDN 免费提供。按请求计费，量越大单价越低:Mega 档<strong>每千次低至 $0.10</strong>、Ultra 档 $0.11、Pro 档 $0.13，另有免费 Basic 档(每月 30 次)供原型验证。由于一页 <code>user_media</code> 约返回 12 条帖子，下载一个账号的 1,000 条帖子大约只需 ~85 次 API 调用——在顶档连一分钱请求费都不到。各档另含每月 10 GB 的 API 流量(指响应 JSON，不含媒体下载),超出按 $0.001/MB 计费。</p>

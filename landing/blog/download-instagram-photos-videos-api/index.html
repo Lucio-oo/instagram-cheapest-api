@@ -321,6 +321,156 @@ curl -o reel.mp4 "&lt;paste-the-cdn-url-here&gt;"</code></pre>
 
             <p>The <code>..</code> recursive descent in <code>jq</code> mirrors the recursive walker above — it finds <code>video_versions</code> anywhere in the tree without you knowing the exact path.</p>
 
+            <h2>The complete script (copy, save, run)</h2>
+
+            <p>Don't want to assemble the pieces? Save the whole thing below as <code>download_media.py</code>, set <code>RAPIDAPI_KEY</code>, and run it. It bundles every step above and takes a command-line argument: a shortcode for one post, <code>@username</code> for a whole profile, or even a pasted URL.</p>
+
+            <pre><code>#!/usr/bin/env python3
+"""Download public Instagram photos &amp; videos via the Instagram Cheapest API.
+
+Setup:
+    pip install requests
+    export RAPIDAPI_KEY='your-key'      # from your RapidAPI dashboard
+
+Usage:
+    python3 download_media.py Cabc123XYz                 # one post / Reel by shortcode
+    python3 download_media.py @nike                      # a whole profile
+    python3 download_media.py @nike --pages 5            # more pages of the profile
+    python3 download_media.py https://www.instagram.com/p/Cabc123XYz/   # a pasted URL works too
+
+Files are saved into ./downloads/. Instagram CDN links are signed and expire
+quickly, so this fetches the JSON and downloads immediately.
+"""
+import os
+import sys
+import json
+import time
+import argparse
+import requests
+
+HOST = "instagram-cheapest.p.rapidapi.com"
+BASE_URL = f"https://{HOST}/api/v1/instagram"
+API_KEY = os.environ.get("RAPIDAPI_KEY", "")
+HEADERS = {"x-rapidapi-key": API_KEY, "x-rapidapi-host": HOST}
+
+
+def get(path, params=None):
+    resp = requests.get(f"{BASE_URL}/{path}", headers=HEADERS, params=params, timeout=30)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def find_media(node, found=None):
+    """Recursively collect best-resolution image/video URLs (single, Reel, carousel)."""
+    if found is None:
+        found = []
+    if isinstance(node, dict):
+        videos = node.get("video_versions")
+        if isinstance(videos, list) and videos:
+            best = max(videos, key=lambda v: v.get("width", 0) or 0)
+            if best.get("url"):
+                found.append({"type": "video", "url": best["url"]})
+        iv = node.get("image_versions2")
+        if isinstance(iv, dict):
+            candidates = iv.get("candidates") or []
+            if candidates and not (isinstance(videos, list) and videos):
+                best = max(candidates, key=lambda c: c.get("width", 0) or 0)
+                if best.get("url"):
+                    found.append({"type": "photo", "url": best["url"]})
+        for value in node.values():
+            find_media(value, found)
+    elif isinstance(node, list):
+        for item in node:
+            find_media(item, found)
+    return found
+
+
+def download_media(media, out_dir="downloads", prefix="ig"):
+    os.makedirs(out_dir, exist_ok=True)
+    saved = []
+    for i, m in enumerate(media):
+        ext = "mp4" if m["type"] == "video" else "jpg"
+        path = os.path.join(out_dir, f"{prefix}_{i}.{ext}")
+        with requests.get(m["url"], timeout=60, stream=True) as r:   # public CDN, no API key
+            r.raise_for_status()
+            with open(path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        print(f"  saved {path}")
+        saved.append(path)
+    return saved
+
+
+def download_post(code):
+    print(f"Fetching post {code} ...")
+    post = get("media_by_code2", params={"code": code})
+    media = find_media(post)
+    print(f"Found {len(media)} media file(s)")
+    return download_media(media, prefix=code)
+
+
+def download_profile(username, max_pages=3):
+    profile = get(f"user/{username}")
+    user_id = profile.get("id") or profile.get("pk")
+    if not user_id:
+        print("Could not find user_id. Raw profile (first 1 KB):")
+        print(json.dumps(profile, indent=2)[:1000])
+        return []
+    print(f"{username} -&gt; user_id {user_id}")
+    saved, next_max_id, page = [], None, 0
+    while page &lt; max_pages:
+        params = {"user_id": user_id}
+        if next_max_id:
+            params["next_max_id"] = next_max_id
+        resp = get("user_media", params=params)
+        media = find_media(resp)
+        print(f"Page {page + 1}: {len(media)} media file(s)")
+        saved += download_media(media, out_dir=f"downloads/{username}",
+                                prefix=f"{username}_p{page}")
+        if not resp.get("more_available"):
+            break
+        next_max_id = resp.get("next_max_id")
+        if not next_max_id:
+            break
+        page += 1
+        time.sleep(1)   # stay under the free tier's ~1 req/sec
+    return saved
+
+
+def parse_target(target):
+    """Return ('post', shortcode) or ('profile', username) from any input."""
+    t = target.strip().rstrip("/")
+    if "instagram.com" in t:
+        parts = [p for p in t.split("/") if p]
+        for kw in ("p", "reel", "reels", "tv"):
+            if kw in parts:
+                return "post", parts[parts.index(kw) + 1]
+        return "profile", parts[-1].lstrip("@")
+    if t.startswith("@"):
+        return "profile", t[1:]
+    return "post", t
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Download public Instagram media.")
+    parser.add_argument("target", help="a shortcode, @username, or full instagram.com URL")
+    parser.add_argument("--pages", type=int, default=3,
+                        help="max pages when downloading a profile (default 3)")
+    args = parser.parse_args()
+
+    if not API_KEY:
+        sys.exit("Set RAPIDAPI_KEY first:  export RAPIDAPI_KEY='your-key'")
+
+    kind, value = parse_target(args.target)
+    if kind == "profile":
+        download_profile(value, max_pages=args.pages)
+    else:
+        download_post(value)
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+
             <h2>What it costs</h2>
 
             <p>Only the metadata calls are billed; the actual media bytes come free from Instagram's CDN. Pricing is per request and drops as you scale: <strong>from $0.10 per 1,000 requests</strong> on the Mega tier, $0.11 on Ultra, and $0.13 on Pro, with a free Basic plan (30 calls/month) for prototyping. Since one <code>user_media</code> page returns ~12 posts, downloading 1,000 posts from a profile is on the order of ~85 API calls — well under a penny of request cost at the top tier. Each tier also includes 10 GB/month of API bandwidth (response JSON, not the media downloads), billed at $0.001/MB beyond that.</p>
